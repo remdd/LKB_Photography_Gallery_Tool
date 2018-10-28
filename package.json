@@ -9,5 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "easyimage": "^3.1.0",
+    "readline-sync": "^1.4.9",
+    "xml2js": "^0.4.19"
+  }
 }
