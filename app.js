@@ -165,7 +165,7 @@ function readJpgsInFolder(galleryObj) {
 
 function getChoice(numberOfOptions) {
 	let choice = rls.question('');
-	if(choice.isInteger() && choice > 0 && choice <= numberOfOptions) {
+	if(Number.isInteger(choice) && choice > 0 && choice <= numberOfOptions) {
 		return choice;
 	} else {
 		stdout.write("\nChoice not recognised - please try again:   >   ");
