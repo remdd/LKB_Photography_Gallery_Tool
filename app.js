@@ -1,5 +1,4 @@
 var rls 						= require('readline-sync'),
-		rl 							=	require('readline'),
 		fs 							= require('fs'),
 		util 						=	require('util'),
 		cp 							=	require('child_process'),
@@ -19,30 +18,41 @@ function mainMenu() {
 	stdout.write("Enter '3' to edit the photos displayed on the homepage.\n");
 	stdout.write("Enter '0' to exit.\n\n");
 	//	Get user choice
-	let choice = rls.question('What do you want to do?   >   ');
-	stdout.write('\n');
+	var choice = getChoice(4);
 	switch(choice) {
-		case '1':
+		case 1:
 			addNewGallery();
 			break;
-		case '2':
+		case 2:
 			editGallery();
 			break;
-		case '3':
+		case 3:
 			editHomepage();
 			break;
-		case '0':
+		case 4:
 			exitApp();
 			break;
 		default:
-			stdout.write("\n\nOption not recognised - please try again.\n\n");
-			mainMenu();
+			throw 'Invalid choice!';
 			break;
 	}
 }
 
+function getChoice(numberOfOptions, message) {
+	var input;
+	if(message) {
+		input = parseInt(rls.question('\n' + message));
+	} else {
+		input = parseInt(rls.question('\nEnter your choice: '));
+	}
+	while(!Number.isInteger(input) || input <= 0 || input > numberOfOptions) {
+		input = parseInt(rls.question('\nChoice not recognised! Please try again: '));
+	}
+	return input;
+}
+
 function addNewGallery() {
-	stdout.write("\nFirst you must give your new gallery a unique folder name.\n");
+	stdout.write("\nPlease give your new gallery a unique folder name.\n");
 	stdout.write("Folder names must not include spaces, but should be descriptive - for example 'AnnaVonHauswolff'.\n");
 	//	Get new folder name
 	var galleryObj = {};
@@ -58,7 +68,7 @@ function enterToContinue() {
 }
 
 function getFolderName() {
-	let folderName = rls.question('\nEnter your new folder name:   >   ');
+	let folderName = rls.question('\nEnter your new folder name: ');
 	if(folderName.length === 0) {
 		stdout.write('\nYou must provide a folder name!\n');
 		return false;
@@ -71,7 +81,7 @@ function getFolderName() {
 }
 
 function getDisplayName(folderName) {
-	let displayName = rls.question(`\nEnter a full display name for the "${folderName}" gallery:   >   `);
+	let displayName = rls.question(`\nEnter a full display name for the "${folderName}" gallery: `);
 	if(displayName.length === 0) {
 		stdout.write('\nYou must give the gallery a display name!\n');
 		return false;
@@ -85,18 +95,16 @@ function createFolder(galleryObj) {
 	if(fs.existsSync(galleryObj.folderPath)) {
 		stdout.write("\nThat folder already exists!\n");
 		stdout.write(`Do you want to edit the existing "${galleryObj.folderName}" gallery, or create a new gallery with a different name?\n`);
-		stdout.write('Enter "1" to edit the existing gallery, or 2 to choose a different name:   >   ');
-		let choice = getChoice(2);
+		var choice = getChoice(2, "Enter '1' to edit the existing gallery, or '2' to choose a different name: ");
 		switch(choice) {
-			case '1':
+			case 1:
 				editGallery(galleryObj.folderName);
 				break;
-			case '2':
+			case 2:
 				addNewGallery();
 				break;
 			default:
-				stdout.write('Error!');
-				process.exit(0);
+				throw 'Invalid choice!';
 				break;
 		}
 	} else {
@@ -110,8 +118,7 @@ function createFolder(galleryObj) {
 				fs.mkdir(path.join(galleryObj.folderPath, 'thumbs'), (err) => {
 					stdout.write('\n..."thumbs" subfolder created...');
 					if(err) {
-						stdout.write(err);
-						throw(err);				
+						throw err;
 					} else {
 						stdout.write(`\n"${galleryObj.folderName}" folder successfully created at "${galleryObj.folderPath}".\n`);
 						while(!galleryObj.displayName) {
@@ -142,18 +149,16 @@ function readJpgsInFolder(galleryObj) {
 			});
 			if(galleryObj.rawJpgFiles.length === 0) {
 				stdout.write(`\nNo jpg images were detected in the "${galleryObj.folderName}" folder.\n`);
-				stdout.write(`\nPress '1' to try again, or '2' to return to the main menu:   >   `);
-				choice = getChoice(2);
+				choice = getChoice(2, "Press '1' to try again, or '2' to return to the main menu: ");
 				switch(choice) {
-					case '1':
+					case 1:
 						readJpgsInFolder(galleryObj);
 						break;
-					case '2':
+					case 2:
 						mainMenu();
 						break;
 					default:
-						stdout.write('Error!');
-						process.exit(0);
+						throw 'Invalid choice!';
 						break;
 				}
 			} else {
@@ -161,16 +166,6 @@ function readJpgsInFolder(galleryObj) {
 			}
 		}
 	});
-}
-
-function getChoice(numberOfOptions) {
-	let choice = rls.question('');
-	if(Number.isInteger(choice) && choice > 0 && choice <= numberOfOptions) {
-		return choice;
-	} else {
-		stdout.write("\nChoice not recognised - please try again:   >   ");
-		getChoice(numberOfOptions);
-	}
 }
 
 function processJpgs(galleryObj) {
@@ -207,8 +202,8 @@ function initializeXml(galleryObj) {
 
 	fs.writeFile(path.join(galleryObj.folderPath, xmlFile), content, (err) => {
 		if(err) {
-			stdout.write(err);
-			throw(err);
+			throw err;
+			break;
 		} else {
 			stdout.write(`\nThe "${galleryObj.displayName}" gallery has been created with ${galleryObj.jpgFiles.length} photos!\n`);
 			enterToContinue();
