@@ -9,13 +9,15 @@ var rls 						= require('readline-sync'),
 
 var stdout = process.stdout;
 
-var app = express();
-const PORT = 6100;
-app.use(bodyParser.urlencoded({extended: true}));
-
 var publicFolder = 'public';
 var galleryFolder = 'galleries';
+
+var app = express();
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(publicFolder));
+app.set('view engine', 'ejs');
+
+const PORT = 6105;
 
 var folderNameRegex = RegExp(/^[a-zA-Z0-9-_]{0,20}$/);
 
@@ -26,10 +28,13 @@ function mainMenu() {
 	stdout.write("Enter '1' to create a new gallery.\n");
 	stdout.write("Enter '2' to edit an existing gallery.\n");
 	stdout.write("Enter '3' to edit the photos displayed on the homepage.\n");
-	stdout.write("Enter '4' to exit.\n\n");
+	stdout.write("Enter '0' to exit.\n\n");
 	//	Get user choice
-	var choice = getChoice(4);
+	var choice = getChoice(4, true);
 	switch(choice) {
+		case 0:
+			exitApp();
+			break;
 		case 1:
 			addNewGallery();
 			break;
@@ -39,24 +44,27 @@ function mainMenu() {
 		case 3:
 			editHomepage();
 			break;
-		case 4:
-			exitApp();
-			break;
 		default:
 			throw 'Invalid choice!';
 			break;
 	}
 }
 
-function getChoice(numberOfOptions, message) {
+function getChoice(numberOfOptions, startFromZero, message) {
 	var input;
 	if(message) {
 		input = parseInt(rls.question('\n' + message));
 	} else {
 		input = parseInt(rls.question('\nEnter your choice: '));
 	}
-	while(!Number.isInteger(input) || input <= 0 || input > numberOfOptions) {
-		input = parseInt(rls.question('\nChoice not recognised! Please try again: '));
+	if(startFromZero) {
+		while(!Number.isInteger(input) || input < 0 || input >= numberOfOptions) {
+			input = parseInt(rls.question('\nChoice not recognised! Please try again: '));
+		}
+	} else {
+		while(!Number.isInteger(input) || input <= 0 || input > numberOfOptions) {
+			input = parseInt(rls.question('\nChoice not recognised! Please try again: '));
+		}
 	}
 	return input;
 }
@@ -106,7 +114,7 @@ function createFolder(galleryObj) {
 	if(fs.existsSync(galleryObj.folderPath)) {
 		stdout.write("\nThat folder already exists!\n");
 		stdout.write(`Do you want to edit the existing "${galleryObj.folderName}" gallery, or create a new gallery with a different name?\n`);
-		var choice = getChoice(2, "Enter '1' to edit the existing gallery, or '2' to choose a different name: ");
+		var choice = getChoice(2, false, "Enter '1' to edit the existing gallery, or '2' to choose a different name: ");
 		switch(choice) {
 			case 1:
 				editGallery(galleryObj.folderName);
@@ -160,7 +168,7 @@ function readJpgsInFolder(galleryObj) {
 			});
 			if(galleryObj.rawJpgFiles.length === 0) {
 				stdout.write(`\nNo jpg images were detected in the "${galleryObj.folderName}" folder.\n`);
-				choice = getChoice(2, "Press '1' to try again, or '2' to return to the main menu: ");
+				choice = getChoice(2, false, "Press '1' to try again, or '2' to return to the main menu: ");
 				switch(choice) {
 					case 1:
 						readJpgsInFolder(galleryObj);
@@ -256,13 +264,21 @@ function editGallery(galleryName) {
 		galleryNames.forEach((gallery, index) => {
 			stdout.write(`  ${index + 1}: ${gallery}\n`);
 		});
-		stdout.write(`\nEnter the number of the gallery to edit:   >   `);
-		let choice = getChoice(galleryNames.length);
-		galleryName = galleryNames[choice - 1];
+		stdout.write(`\nEnter the number of the gallery to edit, or '0' to return to the main menu:   >   `);
+		let choice = getChoice(galleryNames.length + 1, true);
+		if(choice === 0) {
+			mainMenu();
+		} else {
+			galleryName = galleryNames[choice - 1];
+		}
 	}
 	stdout.write(`\nEditing "${galleryName}" gallery...`);
-	enterToContinue();
-	mainMenu();
+	// enterToContinue();
+	// mainMenu();
+
+
+
+
 }
 
 function checkIfFolder(target) {
@@ -276,6 +292,10 @@ function listDirectories(parent) {
 	return folderPaths.map(folderPath => path.basename(folderPath));
 }
 
+function showGallery(galleryName) {
+
+}
+
 function editHomepage() {
 	stdout.write('\nEditing homepage gallery!\n');
 	mainMenu();
@@ -286,9 +306,17 @@ function exitApp() {
 	process.exit(0);
 }
 
-function startServer() {
+app.get('/g', (req, res) => {
+	let gallery = req.query.name;
+	console.log(gallery);
+	res.render('preview', {gallery: gallery});
+});
 
-}
 
+app.listen(PORT, 'localhost', () => {
+	stdout.write(`\nServer started on port ${PORT}...\n`);
+});
+
+console.log("DSFSDFSDFSDF");
 
 mainMenu();
