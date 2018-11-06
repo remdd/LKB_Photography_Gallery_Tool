@@ -5,6 +5,7 @@ var rls 						= require('readline-sync'),
 		easyimage 			= require('easyimage'),
 		express 				= require('express'),
 		bodyParser 			= require('body-parser'),
+		opn 						=	require('opn'),
 		path						=	require('path');
 
 var stdout = process.stdout;
@@ -16,6 +17,7 @@ var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(publicFolder));
 app.set('view engine', 'ejs');
+var server;
 
 const PORT = 6105;
 
@@ -273,12 +275,9 @@ function editGallery(galleryName) {
 		}
 	}
 	stdout.write(`\nEditing "${galleryName}" gallery...`);
-	// enterToContinue();
-	// mainMenu();
-
-
-
-
+	startServer(() => {
+		showGallery(galleryName);
+	});
 }
 
 function checkIfFolder(target) {
@@ -292,10 +291,6 @@ function listDirectories(parent) {
 	return folderPaths.map(folderPath => path.basename(folderPath));
 }
 
-function showGallery(galleryName) {
-
-}
-
 function editHomepage() {
 	stdout.write('\nEditing homepage gallery!\n');
 	mainMenu();
@@ -306,17 +301,40 @@ function exitApp() {
 	process.exit(0);
 }
 
-app.get('/g', (req, res) => {
-	let gallery = req.query.name;
-	console.log(gallery);
-	res.render('preview', {gallery: gallery});
-});
+function startServer(callback) {
+	app.get('/g', (req, res) => {
+		let gallery = req.query.name;
+		// stdout.write("\nGET request for gallery: " + gallery);
+		stdout.write("\nClose the gallery preview when finished to return to the menu.\n");
+		res.render('preview', {gallery: gallery});
+	});
+	app.get('/exit', (req, res) => {
+		console.log("Exiting...");
+		stopServer(() => {
+			res.sendStatus(200);
+			mainMenu();
+		});
+	});
+	server = app.listen(PORT, 'localhost', () => {
+		stdout.write(`\nServer started on port ${PORT}...\n`);
+		if(callback && typeof callback === 'function') {
+			callback();
+		}
+	});
+}
 
+function stopServer(callback) {
+	console.log("Stopping server...");
+	server.close();
+	if(callback && typeof callback === 'function') {
+		callback();
+	}
+}
 
-app.listen(PORT, 'localhost', () => {
-	stdout.write(`\nServer started on port ${PORT}...\n`);
-});
+function showGallery(galleryName) {
+	stdout.write(`Showing gallery: ${galleryName}`);
+	opn(`http://localhost:${PORT}/g?name=${galleryName}`);
+}
 
-console.log("DSFSDFSDFSDF");
 
 mainMenu();
