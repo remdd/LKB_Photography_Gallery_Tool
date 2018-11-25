@@ -1,0 +1,76 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#container {
+  width: 1200px;
+  background: pink;
+  height: 100vh;
+}
+
+form {
+  padding-left: 20px;
+}
+form div {
+  padding-bottom: 8px;
+}
+form label {
+  display: inline-block;
+  width: 260px;
+}
+form input[type=text] {
+  width: 260px;
+}
+form textarea {
+  width: 260px;
+  height: 100px;
+  resize: none;
+}
+
+#thumbs {
+  width: 100%;
+  background: lightgrey;
+  padding-left: 0;
+}
+
+.thumb {
+  display: inline-block;
+  user-select: none;
+  box-sizing: border-box;
+  height: 300px;
+  margin: 0;
+  background: orange;
+  float: left;
+}
+.thumb.col3 {
+  width: 32%;
+}
+.thumb.col4 {
+  width: 23.5%;
+}
+
+[data-filename="Cuba_3.jpg"] {
+  height: 500px;
+}
+
+[data-filename="Cuba_2.jpg"] {
+  height: 200px;
+}
+
+[data-filename="Cuba_5.jpg"] {
+  height: 200px;
+}
+
+.thumbGutter {
+  width: 2%;
+}
+
+.thumbSizer.col3 {
+  width: 32%;
+}
+.thumbSizer.col4 {
+  width: 23.5%;
+}
+
+/*# sourceMappingURL=CSGalleryMaker.css.map */

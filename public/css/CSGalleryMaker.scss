@@ -1,0 +1,75 @@
+body {
+	padding: 0;
+	margin: 0;
+}
+
+#container {
+	width: 1200px;
+	background: pink;
+	height: 100vh;
+}
+
+form {
+	padding-left: 20px;
+	div {
+		padding-bottom: 8px;
+	}
+	label {
+		display: inline-block;
+		width: 260px;
+	}
+	input {
+		// width: 260px;
+	}
+	input[type='text'] {
+		width: 260px;
+	}
+	textarea {
+		width: 260px;
+		height: 100px;
+		resize: none;
+	}
+}
+
+#thumbs {
+	width: 100%;
+	background: lightgrey;
+	padding-left: 0;
+}
+
+.thumb {
+	display: inline-block;
+	user-select: none;
+	box-sizing: border-box;
+	height: 300px;
+	margin: 0;
+	background: orange;
+	float: left;
+	&.col3 {
+		width: 32%;
+	}
+	&.col4 {
+		width: 23.5%;
+	}
+}
+[data-filename="Cuba_3.jpg"] {
+	height: 500px;
+}
+[data-filename="Cuba_2.jpg"] {
+	height: 200px;
+}
+[data-filename="Cuba_5.jpg"] {
+	height: 200px;
+}
+
+.thumbGutter {
+	width: 2%;
+}
+.thumbSizer {
+	&.col3 {
+		width: 32%;
+	}
+	&.col4 {
+		width: 23.5%;
+	}
+}

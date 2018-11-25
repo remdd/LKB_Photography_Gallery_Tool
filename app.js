@@ -32,13 +32,13 @@ function mainMenu() {
 	stdout.write("Enter '3' to edit the photos displayed on the homepage.\n");
 	stdout.write("Enter '0' to exit.\n\n");
 	//	Get user choice
-	var choice = getChoice(4, true);
+	let choice = getChoice(4, true);
 	switch(choice) {
 		case 0:
 			exitApp();
 			break;
 		case 1:
-			addNewGallery();
+			createNewGallery();
 			break;
 		case 2:
 			editGallery();
@@ -51,6 +51,75 @@ function mainMenu() {
 			break;
 	}
 }
+
+function Gallery(folderName, folderPath) {
+	this.folderName = folderName;
+	this.folderPath = folderPath;
+	this.displayName = '';
+}
+
+Gallery.prototype.setFolderName = function() {
+	stdout.write('\n\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.');
+	let folderName = rls.question('\nEnter your new folder name: ');
+	while(folderName.length === 0 || !folderNameRegex.test(folderName)) {
+		stdout.write('\n\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.\n');
+		folderName = rls.question('\nEnter your new folder name: ');
+	}
+}
+Gallery.prototype.setDisplayName = function() {
+	if(this.displayName.length > 0) {
+		stdout.write(`\nThe full display name for the ${this.folderName} gallery is ${this.displayName}.`);
+	}
+	let displayName = rls.question(`\nEnter a new display name for the "${this.folderName}" gallery: `);
+	while(displayName.length === 0) {
+		stdout.write('\nYou must give the gallery a display name!');
+		displayName = rls.question(`\nEnter a new display name for the "${this.folderName}" gallery: `);
+	} else {
+		this.displayName = displayName;
+	}
+}
+Gallery.prototype.readRawJpgs = function() {
+	fs.readdir(this.folderPath, (err, files) => {
+		if(err) {
+			stdout.write(err);
+			throw(err);
+		} else {
+			this.rawJpgFiles = [];
+			files.forEach((file) => {
+				if(file.slice(-4).toLowerCase() === '.jpg') {
+					this.rawJpgFiles.push(file);
+				}
+			});
+			if(this.rawJpgFiles.length === 0) {
+				stdout.write(`\nNo jpg images were detected in the "${this.folderName}" folder.\n`);
+				choice = getChoice(2, false, "Press '1' to try again, or '2' to return to the main menu: ");
+				switch(choice) {
+					case 1:
+						readJpgsInFolder(galleryObj);
+						break;
+					case 2:
+						mainMenu();
+						break;
+					default:
+						throw 'Invalid choice!';
+						break;
+				}
+			} else {
+				processJpgs(galleryObj);
+			}
+		}
+	});
+}
+
+
+
+
+Gallery.prototype.createXml = function() {
+
+}
+
+
+
 
 function getChoice(numberOfOptions, startFromZero, message) {
 	var input;
@@ -71,7 +140,7 @@ function getChoice(numberOfOptions, startFromZero, message) {
 	return input;
 }
 
-function addNewGallery() {
+function createNewGallery() {
 	stdout.write("\nPlease give your new gallery a unique folder name.\n");
 	stdout.write("Folder names must not include spaces, but should be descriptive - for example 'AnnaVonHauswolff'.\n");
 	//	Get new folder name
@@ -79,7 +148,7 @@ function addNewGallery() {
 	while(!galleryObj.folderName) {
 		galleryObj.folderName = getFolderName();
 	}
-	stdout.write(JSON.stringify(galleryObj));
+	// stdout.write(JSON.stringify(galleryObj));
 	galleryObj.folderPath = path.join(__dirname, publicFolder, galleryFolder, galleryObj.folderName);
 	createFolder(galleryObj);
 }
@@ -88,35 +157,13 @@ function enterToContinue() {
 	rls.question('\nHit enter to continue...   ');
 }
 
-function getFolderName() {
-	let folderName = rls.question('\nEnter your new folder name: ');
-	if(folderName.length === 0) {
-		stdout.write('\nYou must provide a folder name!\n');
-		return false;
-	} else if(!folderNameRegex.test(folderName)) {
-		stdout.write('\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.\n');
-		return false;
-	} else {
-		return folderName;
-	}
-}
-
-function getDisplayName(folderName) {
-	let displayName = rls.question(`\nEnter a full display name for the "${folderName}" gallery: `);
-	if(displayName.length === 0) {
-		stdout.write('\nYou must give the gallery a display name!\n');
-		return false;
-	} else {
-		return displayName;
-	}
-}
 
 function createFolder(galleryObj) {
 	stdout.write(`\nCreating folder: "${galleryObj.folderPath}"\n`);
 	if(fs.existsSync(galleryObj.folderPath)) {
 		stdout.write("\nThat folder already exists!\n");
 		stdout.write(`Do you want to edit the existing "${galleryObj.folderName}" gallery, or create a new gallery with a different name?\n`);
-		var choice = getChoice(2, false, "Enter '1' to edit the existing gallery, or '2' to choose a different name: ");
+		let choice = getChoice(2, false, "Enter '1' to edit the existing gallery, or '2' to choose a different name: ");
 		switch(choice) {
 			case 1:
 				editGallery(galleryObj.folderName);
@@ -129,7 +176,7 @@ function createFolder(galleryObj) {
 				break;
 		}
 	} else {
-		stdout.write(galleryObj.folderPath);
+		stdout.write(`Making new folder at ${galleryObj.folderPath}`);
 		fs.mkdir(galleryObj.folderPath, (err) => {
 			if(err) {
 				stdout.write("\nThat folder name is not valid!\n");
@@ -154,6 +201,7 @@ function createFolder(galleryObj) {
 			}
 		});
 	}
+	// stdout.write("\n\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\n\n");
 }
 
 function readJpgsInFolder(galleryObj) {
@@ -270,6 +318,7 @@ function editGallery(galleryName) {
 		let choice = getChoice(galleryNames.length + 1, true);
 		if(choice === 0) {
 			mainMenu();
+			// stdout.write('\n||||||||||||||||||||||||||||||||||||||||||||||||||||\n\n');
 		} else {
 			galleryName = galleryNames[choice - 1];
 		}
@@ -338,3 +387,46 @@ function showGallery(galleryName) {
 
 
 mainMenu();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function getFolderName() {
+	let folderName = rls.question('\nEnter your new folder name: ');
+	if(folderName.length === 0) {
+		stdout.write('\nYou must provide a folder name!\n');
+		return false;
+	} else if(!folderNameRegex.test(folderName)) {
+		stdout.write('\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.\n');
+		return false;
+	} else {
+		return folderName;
+	}
+}
+
+function getDisplayName(folderName) {
+	let displayName = rls.question(`\nEnter a full display name for the "${folderName}" gallery: `);
+	if(displayName.length === 0) {
+		stdout.write('\nYou must give the gallery a display name!\n');
+		return false;
+	} else {
+		return displayName;
+	}
+}

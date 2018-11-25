@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>LKB Photography gallery tool</title>
+	<link rel="stylesheet" type="text/css" href="css/CSGalleryMaker.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="lib/jquery-ui-1.12.1/jquery-ui.js"></script>
+	<script type="text/javascript" src="lib/packery.pkgd.min.js"></script>
+	<script type="text/javascript" src="js/galleryMaker.js"></script>
+</head>
+
+<body>
+
+	<div>
+		<h2>LKB Photography gallery tool: <span id="galleryName"><%= gallery %></span></h2>
+
+		<form action="/loadimages" method="POST" id="loadImagesForm">
+			<div>
+				<input id="fileInput" type="file" name="files" webkitdirectory directory multiple>
+<!-- 				<input id="loadThumbnailsBtn" type="submit" value="Load thumbnails" disabled> -->
+			</div>
+		</form>
+
+		<form id="saveForm" action="/savegallery" method="POST">
+			<div>
+				<label for="displayName">Gallery display name: </label>
+				<input type="text" name="displayName">
+			</div>
+			<label for="columns">Columns: </label>
+			<input type="radio" name="columns" value="3" class="colBtn" id="colBtn3" checked>3
+			<input type="radio" name="columns" value="4" class="colBtn" id="colBtn4">4
+			<input id="saveGalleryBtn" type="submit" value="Save gallery" disabled>
+		</form>
+		
+	</div>
+
+
+
+	<div id="container">
+		<ul id="thumbs">
+			<div class="thumbSizer col3"></div>
+			<div class="thumbGutter"></div>
+
+<!-- 			<% if(typeof images !== 'undefined') {
+				images.forEach(function(image) { %>
+				<li class="thumb col3" data-filename="<%- image %>">
+					<div>
+						<img src="">
+						<h4><%- image %></h4>
+						<h4 class="positionLabel"></h4>
+					</div>
+				</li>
+			<% })} else { console.log("No images!")} %> -->
+
+ 		</ul>
+	</div>
+
+	<script type="text/javascript">
+		
+		$(() => {
+			console.log($('#galleryName').text());
+		});
+
+	</script>
+
+
+
+
+
+
+
+
+</body>
+</html>
+
+
+
+
