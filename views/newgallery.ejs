@@ -12,7 +12,7 @@
 <body>
 
 	<div>
-		<h2>LKB Photography gallery tool: <span id="galleryName"><%= gallery %></span></h2>
+		<h2>LKB Photography gallery tool: <span id="galleryName"><%=gallery.name%></span></h2>
 
 		<form action="/loadimages" method="POST" id="loadImagesForm">
 			<div>
@@ -50,16 +50,26 @@
 						<h4 class="positionLabel"></h4>
 					</div>
 				</li>
-			<% })} else { console.log("No images!")} %> -->
+			<% })} else { console.log("\nNo images!")} %> -->
 
  		</ul>
 	</div>
 
 	<script type="text/javascript">
-		
 		$(() => {
-			console.log($('#galleryName').text());
-		});
+			let encodedHTML = "<%=gallery.xml%>";
+			let decodedHTML = unescapeHTML(encodedHTML);
+			console.log(decodedHTML);
+			var $xml = $(decodedHTML);
+			console.log($xml.find('gallery photo').text());
+		})
+
+
+		function unescapeHTML(input) {
+			var e = document.createElement('div');
+			e.innerHTML = input;
+			return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+		}
 
 	</script>
 

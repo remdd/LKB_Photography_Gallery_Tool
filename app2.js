@@ -6,6 +6,7 @@ var rls 						= require('readline-sync'),
 		express 				= require('express'),
 		bodyParser 			= require('body-parser'),
 		opn 						=	require('opn'),
+		xmljs 					=	require('xml-js'),
 		path						=	require('path');
 
 var stdout = process.stdout;
@@ -86,19 +87,12 @@ lkb.menu = {
 		}
 		return choice;
 	},
-	enterToContinue: function(message, enterMessage) {
+	enterToContinue: function(customMessage) {
 		//	Pause menu flow until user hits enter 
-		if(message && typeof message === 'string') {
-			stdout.write(message);
-		} else if(message && message.constructor === Array) {
-			message.forEach(messageLine => {
-				stdout.write(messageLine);
-			});
-		}
-		if(enterMessage) {
+		if(!customMessage || typeof customMessage !== 'string') {
 			rls.question('\nHit enter to continue...   ');
 		} else {
-			rls.question('');
+			rls.question(customMessage);
 		}
 	},
 	//	Main menu functions
@@ -117,7 +111,7 @@ lkb.menu = {
 	createNewGallery: function() {
 		stdout.write('\nCreating new gallery...');
 		var newGallery = {}
-		newGallery.folderName = this.getNewFolderName();
+		newGallery.folderName = this.getNewFolderName().toLowerCase();
 		newGallery.path = path.join(lkb.path.full, newGallery.folderName);
 		this.createNewFolder(newGallery);
 		this.readJpgsInFolder(newGallery, true);
@@ -228,8 +222,8 @@ lkb.menu = {
 		});
 		content += '\t</gallery>\n' + '</document>\n';
 		try {
-			fs.writeFileSync(path.join(gallery.path, gallery.folderName + '.xml'), content);		
-			stdout.write(`\nA layout file "${gallery.folderName}.xml" has been initialized for the "${gallery.folderName}" gallery.`);
+			fs.writeFileSync(path.join(gallery.path, gallery.folderName.toLowerCase() + '.xml'), content);		
+			stdout.write(`\nA layout file "${gallery.folderName.toLowerCase()}.xml" has been initialized for the "${gallery.folderName}" gallery.`);
 		} catch(err) {
 			stdout.write(err);
 		}
@@ -291,6 +285,15 @@ lkb.menu = {
 	},
 	checkIfFolder: function(target) {
 		return fs.lstatSync(target).isDirectory();
+	},
+	parseXmlFile: function(gallery, callback) {
+		let filepath = path.join(lkb.path.full, gallery.name, gallery.name.toLowerCase() + '.xml');
+		let filedata = fs.readFileSync(filepath, 'utf8');
+		console.log("\n__________________filedata:\n")
+		console.log(filedata);
+		gallery.xml = filedata.replace(/(\r\n|\n|\r|\t)/gm,"");
+		console.log(gallery.xml);
+		callback();
 	}
 }
 
@@ -298,8 +301,13 @@ lkb.menu = {
 lkb.server = {
 	start: function(callback) {
 		app.get('/g', (req, res) => {
-			let gallery = req.query.name;
-			res.render('newgallery', {gallery: gallery});
+			let gallery = {
+				name: req.query.name,
+			};
+			lkb.menu.parseXmlFile(gallery, () => {
+				console.log(gallery);
+				res.render('newgallery', {gallery: gallery});
+			});
 		});
 		app.get('/exit', (req, res) => {
 			console.log("Exiting...");
