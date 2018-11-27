@@ -5,8 +5,8 @@ body {
 
 #container {
 	width: 1200px;
-	background: pink;
-	height: 100vh;
+	// background: pink;
+	// height: 100vh;
 }
 
 form {
@@ -41,25 +41,19 @@ form {
 	display: inline-block;
 	user-select: none;
 	box-sizing: border-box;
-	height: 300px;
 	margin: 0;
 	background: orange;
 	float: left;
+	// height: auto;
 	&.col3 {
 		width: 32%;
 	}
 	&.col4 {
 		width: 23.5%;
 	}
-}
-[data-filename="Cuba_3.jpg"] {
-	height: 500px;
-}
-[data-filename="Cuba_2.jpg"] {
-	height: 200px;
-}
-[data-filename="Cuba_5.jpg"] {
-	height: 200px;
+	img {
+		width: 100%;
+	}
 }
 
 .thumbGutter {

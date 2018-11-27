@@ -17,7 +17,6 @@
 		<form action="/loadimages" method="POST" id="loadImagesForm">
 			<div>
 				<input id="fileInput" type="file" name="files" webkitdirectory directory multiple>
-<!-- 				<input id="loadThumbnailsBtn" type="submit" value="Load thumbnails" disabled> -->
 			</div>
 		</form>
 
@@ -34,50 +33,43 @@
 		
 	</div>
 
-
-
 	<div id="container">
 		<ul id="thumbs">
 			<div class="thumbSizer col3"></div>
 			<div class="thumbGutter"></div>
-
-<!-- 			<% if(typeof images !== 'undefined') {
-				images.forEach(function(image) { %>
-				<li class="thumb col3" data-filename="<%- image %>">
-					<div>
-						<img src="">
-						<h4><%- image %></h4>
-						<h4 class="positionLabel"></h4>
-					</div>
-				</li>
-			<% })} else { console.log("\nNo images!")} %> -->
-
  		</ul>
 	</div>
 
+
+
 	<script type="text/javascript">
+
 		$(() => {
+			//	Load thumbs from XML
 			let encodedHTML = "<%=gallery.xml%>";
 			let decodedHTML = unescapeHTML(encodedHTML);
-			console.log(decodedHTML);
-			var $xml = $(decodedHTML);
-			console.log($xml.find('gallery photo').text());
-		})
-
-
-		function unescapeHTML(input) {
-			var e = document.createElement('div');
-			e.innerHTML = input;
-			return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
-		}
+			var galleryName = "<%=gallery.name%>";
+			var galleryParent = "<%=gallery.parent%>";
+			var photos = [];
+			$(decodedHTML).find('gallery photo').each((index, photo) => {
+				let photoObj = {
+					'position': $(photo).attr('position'),
+					'filename': $(photo).text()
+				}
+				photos.push(photoObj);
+			});
+			photos.sort(compare);
+			photos.forEach(photo => {
+				let path = '../' + photo.filename;
+				let element = '<li class="thumb col3" data-filename="' + path + '">' +
+					'<img src="' + galleryParent + '/' + galleryName + '/' + photo.filename + '"></li>';
+				$('#thumbs').append(element);	
+			});
+			console.log(photos);
+			loadGalleryMaker();
+		});
 
 	</script>
-
-
-
-
-
-
 
 
 </body>

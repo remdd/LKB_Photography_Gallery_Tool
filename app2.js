@@ -302,8 +302,10 @@ lkb.server = {
 	start: function(callback) {
 		app.get('/g', (req, res) => {
 			let gallery = {
-				name: req.query.name,
+				parent: lkb.path.galleries,
+				name: req.query.name
 			};
+			console.log(gallery.path);
 			lkb.menu.parseXmlFile(gallery, () => {
 				console.log(gallery);
 				res.render('newgallery', {gallery: gallery});
