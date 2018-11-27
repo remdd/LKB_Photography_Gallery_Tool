@@ -215,10 +215,11 @@ lkb.menu = {
 	createXml: function(gallery) {
 		stdout.write("\nCreating layout file...")
 		//	XML syntax
+		var cols = 3;
 		var content = '<?xml version="1.0" encoding="UTF-8"?>\n' + '<document>\n' +
-			`\t<gallery folder="${gallery.folderName}" displayname="${gallery.displayName}">\n`;
+			`\t<gallery folder="${gallery.folderName}" displayname="${gallery.displayName}" columns="${cols}">\n`;
 		gallery.jpgFiles.forEach((fileName, index) => {
-			content += `\t\t<photo position="${index}">${fileName}</photo>\n`;
+			content += `\t\t<photo position="${index}" displayed="true">${fileName}</photo>\n`;
 		});
 		content += '\t</gallery>\n' + '</document>\n';
 		try {
@@ -308,7 +309,7 @@ lkb.server = {
 			console.log(gallery.path);
 			lkb.menu.parseXmlFile(gallery, () => {
 				console.log(gallery);
-				res.render('newgallery', {gallery: gallery});
+				res.render('newgallery2', {gallery: gallery});
 			});
 		});
 		app.get('/exit', (req, res) => {

@@ -6,6 +6,7 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="lib/jquery-ui-1.12.1/jquery-ui.js"></script>
 	<script type="text/javascript" src="lib/packery.pkgd.min.js"></script>
+	<script type="text/javascript" src="lib/imagesloaded.pkgd.js"></script>
 	<script type="text/javascript" src="js/galleryMaker.js"></script>
 </head>
 
@@ -14,10 +15,10 @@
 	<div>
 		<h2>LKB Photography gallery tool: <span id="galleryName"><%=gallery.name%></span></h2>
 
-		<form action="/loadimages" method="POST" id="loadImagesForm">
-			<div>
-				<input id="fileInput" type="file" name="files" webkitdirectory directory multiple>
-			</div>
+		<form id="layoutForm" action="updateLayout">
+			<label for="columns">Columns: </label>
+			<input type="radio" name="columns" value="3" class="colBtn" id="colBtn3" checked>3
+			<input type="radio" name="columns" value="4" class="colBtn" id="colBtn4">4
 		</form>
 
 		<form id="saveForm" action="/savegallery" method="POST">
@@ -25,9 +26,6 @@
 				<label for="displayName">Gallery display name: </label>
 				<input type="text" name="displayName">
 			</div>
-			<label for="columns">Columns: </label>
-			<input type="radio" name="columns" value="3" class="colBtn" id="colBtn3" checked>3
-			<input type="radio" name="columns" value="4" class="colBtn" id="colBtn4">4
 			<input id="saveGalleryBtn" type="submit" value="Save gallery" disabled>
 		</form>
 		
@@ -66,7 +64,9 @@
 				$('#thumbs').append(element);	
 			});
 			console.log(photos);
-			loadGalleryMaker();
+			$('#thumbs').imagesLoaded(() => {
+				loadGalleryMaker();
+			});
 		});
 
 	</script>
