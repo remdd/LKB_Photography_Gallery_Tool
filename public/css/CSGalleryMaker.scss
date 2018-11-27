@@ -1,6 +1,6 @@
 body {
 	padding: 0;
-	margin: 0;
+	margin: 20px;
 }
 
 #container {
@@ -36,6 +36,11 @@ form {
 	background: lightgrey;
 	padding-left: 0;
 }
+#unusedThumbs {
+	width: 100%;
+	background: pink;
+	padding-left: 0;
+}
 
 .thumb {
 	display: inline-block;
@@ -65,11 +70,12 @@ form {
 		border-radius: 30px;
 		background: white;
 		span {
+			display: inline-block;
+			width: 100%;
+			text-align: center;
+			margin-top: 8px;
 			color: black;
 			font-size: 14px;
-			position: absolute;
-			top: 7px;
-			left: 4px;
 			white-space: nowrap;
 		}
 	}

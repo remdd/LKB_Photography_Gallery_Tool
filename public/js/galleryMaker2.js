@@ -6,39 +6,85 @@ function loadGalleryMaker(gallery) {
 	setUpPackery();
 }
 
+var $thumbsPackery, $unusedPackery;
+
+
+
 //	Packery functions
 function setUpPackery() {
+	// if(typeof $thumbsPackery !== 'undefined') {
+	// 	$thumbsPackery.packery('destroy');
+	// }
+	// if(typeof $unusedPackery !== 'undefined') {
+	// 	$unusedPackery.packery('destroy');
+	// }
 	//	Declare Packery container & contents
-	thumbsPackery = $('#thumbs').packery({
+	$thumbsPackery = $('#thumbs').packery({
 		itemSelector: '.thumb',
 		columnWidth: '.thumbSizer',
 		percentPosition: true,
 		gutter: '.thumbGutter'
 	});
 	//	Reassign packery positions to thumbnails whenever layout is dragged
-	// gallery.on('layoutComplete', updateLayout);
-	thumbsPackery.on('dragItemPositioned', updatePositionNumbers);
-	setUpThumbs();
+	$thumbsPackery.on('dragItemPositioned', () => {
+		console.log("Dragged!");
+		setTimeout(refreshLayout, 1);
+	});
 
-	//	3 / 4 column switch listener
-	$('.colBtn').on('change', function() {
-		console.log(".colBtn changed!");
-		if($('#colBtn3').prop('checked')) {
-			setColumns(3);
-		} else if($('#colBtn4').prop('checked')) {
-			setColumns(4);
-		};
-		console.log(thumbsPackery);
+	//	Declare unused thumb Packery container & contents
+	$unusedPackery = $('#unusedThumbs').packery({
+		itemSelector: '.thumb',
+		columnWidth: '.thumbSizer',
+		percentPosition: true,
+		gutter: '.thumbGutter'
+	});
+	//	Reassign packery positions to thumbnails whenever layout is dragged
+	$unusedPackery.on('dragItemPositioned', () => {
+		console.log("Dragged!");
+		// setTimeout(refreshLayout, 1);
+	});
+
+	setUpThumbs();
+	// setInterval(refreshLayout, 1000);
+}
+
+function addToggleListeners() {
+	$('.thumb').off('click');
+	$('.thumb').on('click', function() {
+		toggleThumb(this);
 	});
 }
+
+function toggleThumb(thumb) {
+	console.log(thumb);
+	console.log("Toggling");
+	if($(thumb).parent().hasClass('removed')) {
+		$(thumb).parent().removeClass('removed');
+		$thumbsPackery.append($(thumb).parent()).packery('appended', $(thumb).parent());
+		setUpThumbs();
+		setTimeout(updatePositions, 1);
+	} else {
+		$(thumb).parent().addClass('removed');
+		var clone = $(thumb).parent().clone();
+		$thumbsPackery.packery('remove', $(thumb).parent());
+		clone.appendTo('#unusedThumbs');
+		setUpThumbs();
+		setTimeout(updatePositions, 1);
+	}
+}
+
+//	Listeners
+
 //	Set thumbs in thumb list as draggable using jQuery UI draggable
 function setUpThumbs() {
 	var $galleryThumbs = $('#thumbs .thumb').draggable();
-	thumbsPackery.packery('bindUIDraggableEvents', $galleryThumbs);
-	$('#thumbs .thumb').each((index, element) => {
-		//	?
-	});
-	updatePositionNumbers();
+	$thumbsPackery.packery('unbindUIDraggableEvents', $galleryThumbs);
+	$thumbsPackery.packery('bindUIDraggableEvents', $galleryThumbs);
+	var $unusedThumbs = $('#unusedThumbs .thumb').draggable();
+	$unusedPackery.packery('unbindUIDraggableEvents', $unusedThumbs);
+	$unusedPackery.packery('bindUIDraggableEvents', $unusedThumbs);
+	updatePositions();
+	addToggleListeners();
 }
 //	Change number of columns
 function setColumns(cols) {
@@ -52,30 +98,38 @@ function setColumns(cols) {
 	}
 }
 
-//	Assign packery position to each thumbnail
-
-function updateLayout() {
-	console.log("Updating layout...");
-}
-
-function updatePositionNumbers() {
-	//	Get the x and y offset of each thumbnail
-	let x_offsets = [];
-	let y_offsets = [];
-	$('#thumbs .thumb').each((index, thumb) => {
-		x_offsets.push($(thumb).offset().left);
-		y_offsets.push($(thumb).offset().top);
+//	Call after any movement of thumbnails
+function updatePositions() {
+	console.log("Updating positions...");
+	//	Iterate thumbnails again...
+	var thumbnails = $('#thumbs .thumb');
+	thumbnails.sort(compareRowThenCol);
+	thumbnails.each((index, thumb) => {
+		$(thumb).find('.positionLabel span').text(index);
 	});
-	//	Reduce each array to unique values
-	x_offsets = [...new Set(x_offsets)];
-	y_offsets = [...new Set(y_offsets)];
-	//	
-	$('#thumbs .thumb').each((index, thumb) => {
-		let col = x_offsets.indexOf($(thumb).offset().left);
-		let row = y_offsets.indexOf($(thumb).offset().top);
-		$(thumb).find('.positionLabel span').text(col + ', ' + row);
+	$('.thumb.removed').each((index, thumb) => {
+		$(thumb).find('.positionLabel span').text('-');
 	});
 }
+
+function refreshLayout(unused) {
+	console.log("Refreshing layout...");
+	$thumbsPackery.packery();
+	$unusedPackery.packery();
+	updatePositions();
+}
+
+
+//	3 / 4 column switch listener
+$('.colBtn').on('change', function() {
+	console.log(".colBtn changed!");
+	if($('#colBtn3').prop('checked')) {
+		setColumns(3);
+	} else if($('#colBtn4').prop('checked')) {
+		setColumns(4);
+	};
+});
+
 
 
 //	Utility functions
@@ -85,7 +139,7 @@ function unescapeHTML(input) {
 	return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 }
 
-function compare(a, b) {
+function comparePosition(a, b) {
 	if(a.position < b.position) {
 		return -1;
 	}
@@ -93,4 +147,20 @@ function compare(a, b) {
 		return 1;
 	}
 	return 0;
+}
+
+function compareRowThenCol(x, y) {
+	let a = $(x), b = $(y);
+	if(a.offset().top < b.offset().top) {
+		return -1;
+	}
+	if(a.offset().top > b.offset().top) {
+		return 1;
+	}
+	if(a.offset().left < b.offset().left) {
+		return -1;
+	}
+	if(a.offset().left > b.offset().left) {
+		return 1;
+	}
 }

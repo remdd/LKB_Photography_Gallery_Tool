@@ -68,7 +68,7 @@
 				gallery.photos.push(photoObj);
 			});
 			//	Sort photos by position
-			gallery.photos.sort(compare);
+			gallery.photos.sort(comparePosition);
 			//	Add photos to DOM
 			gallery.photos.forEach(photo => {
 				let path = '../' + photo.filename;
