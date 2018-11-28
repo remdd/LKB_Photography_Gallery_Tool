@@ -28,7 +28,8 @@
 			</div>
 			<input id="saveGalleryBtn" type="submit" value="Save gallery" disabled>
 		</form>
-		
+
+		<button id="toggleIconBtn">Toggle icons</button>
 	</div>
 
 	<div id="container">
@@ -82,7 +83,7 @@
 				//	If photo is not to be displayed, add 'removed' class (greyed etc)
 				if(!photo.displayed) {
 					$('.thumb').last().addClass('removed');
-					$('.thumb').last().attr('data-position', '-');
+					$('.thumb').last().attr('data-position', 'none');
 					$('.thumb').last().appendTo('#unusedThumbs');
 				}
 			});

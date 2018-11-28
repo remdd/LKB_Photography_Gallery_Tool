@@ -30,6 +30,10 @@ form {
 		resize: none;
 	}
 }
+#toggleIconBtn {
+	margin-left: 20px;
+	margin-top: 10px;
+}
 
 #thumbs {
 	width: 100%;
@@ -91,6 +95,9 @@ form {
 	}
 	&.removed {
 		filter: sepia(100%);
+		.toggleBtn {
+			filter: none;
+		}
 	}
 }
 

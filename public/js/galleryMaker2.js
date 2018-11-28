@@ -35,6 +35,21 @@ function setUpPackery() {
 		updatePositions();
 	});
 
+	$('#toggleIconBtn').click(() => {
+		$('.positionLabel').toggle();
+		$('.toggleBtn').toggle();
+	})
+
+	//	3 / 4 column switch listener
+	$('.colBtn').on('change', function() {
+		console.log(".colBtn changed!");
+		if($('#colBtn3').prop('checked')) {
+			setColumns(3);
+		} else if($('#colBtn4').prop('checked')) {
+			setColumns(4);
+		};
+	});
+
 	setUpThumbs();
 }
 
@@ -103,15 +118,6 @@ function toggleThumb($thumb) {
 }
 
 
-//	3 / 4 column switch listener
-$('.colBtn').on('change', function() {
-	console.log(".colBtn changed!");
-	if($('#colBtn3').prop('checked')) {
-		setColumns(3);
-	} else if($('#colBtn4').prop('checked')) {
-		setColumns(4);
-	};
-});
 //	Change number of columns
 function setColumns(cols) {
 	console.log("Setting cols... " + cols);
@@ -122,6 +128,7 @@ function setColumns(cols) {
 		$('.thumb, .thumbSizer').removeClass('col3');
 		$('.thumb, .thumbSizer').addClass('col4');
 	}
+	updatePositions();
 }
 
 
