@@ -10,6 +10,14 @@ var $thumbsPackery, $unusedPackery;
 
 //	Packery functions
 function setUpPackery() {
+	// //	Clear any previous Packery instances
+	// if(typeof $thumbsPackery !== 'undefined') {
+	// 	$thumbsPackery.packery('destroy');
+	// }
+	// if(typeof $unusedPackery !== 'undefined') {
+	// 	$unusedPackery.packery('destroy');
+	// }
+	//	Declare Packery container & contents
 	$thumbsPackery = $('#thumbs').packery({
 		itemSelector: '.thumb',
 		columnWidth: '.thumbSizer',
@@ -89,15 +97,13 @@ function toggleThumb($thumb) {
 	console.log("Toggling");
 	if($thumb.hasClass('removed')) {
 		$thumb.removeClass('removed');
-		$thumb2 = $thumb.clone();
-		$unusedPackery.packery('remove', $thumb);
-		$thumbsPackery.append($thumb2).packery('appended', $thumb2);
+		$thumbsPackery.append($thumb).packery('appended', $thumb);
 		setUpThumbs();
 	} else {
 		$thumb.addClass('removed');
-		$thumb2 = $thumb.clone();
+		var clone = $thumb.clone();
 		$thumbsPackery.packery('remove', $thumb);
-		$unusedPackery.append($thumb2).packery('appended', $thumb2);
+		clone.appendTo('#unusedThumbs');
 		setUpThumbs();
 	}
 }

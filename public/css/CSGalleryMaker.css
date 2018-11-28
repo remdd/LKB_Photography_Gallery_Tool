@@ -28,13 +28,13 @@ form textarea {
 
 #thumbs {
   width: 100%;
-  background: lightgrey;
   padding-left: 0;
 }
 
 #unusedThumbs {
+  margin-top: 50px;
   width: 100%;
-  background: pink;
+  background: lightgrey;
   padding-left: 0;
 }
 
