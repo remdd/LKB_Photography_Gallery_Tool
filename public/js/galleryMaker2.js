@@ -1,12 +1,15 @@
-//	Global variables;
-function loadGalleryMaker(gallery) {
+//	Global variables
+var $thumbsPackery, $unusedPackery;
+var gallery;
+
+//	Init function
+function loadGalleryMaker(loadedGallery) {
 	console.log("Loading gallery maker...");
-	console.log(gallery);
+	gallery = loadedGallery;
 	//	Configure thumb list as packery
 	setUpPackery();
 }
 
-var $thumbsPackery, $unusedPackery;
 
 //	Packery functions
 function setUpPackery() {
@@ -45,9 +48,29 @@ function setUpPackery() {
 		console.log(".colBtn changed!");
 		if($('#colBtn3').prop('checked')) {
 			setColumns(3);
+			gallery.cols = 3;
 		} else if($('#colBtn4').prop('checked')) {
 			setColumns(4);
+			gallery.cols = 4;
 		};
+	});
+
+	$('#saveGalleryBtn').click(e => {
+		e.preventDefault();
+		gallery.displayName = $('#displayName').val();
+		gallery.photos = [];
+		$('.thumb').each((index, thumb) => {
+			let photo = {
+				position: $(thumb).attr('data-position'),
+				displayed: $(thumb).hasClass('removed') ? 'false' : 'true',
+				filename: $(thumb).attr('data-filename')
+			}
+			gallery.photos.push(photo);
+		});
+		let url = '/g?name=' + gallery.name;
+		$.post(url, gallery, (res) => {
+			console.log(res);
+		});
 	});
 
 	setUpThumbs();
@@ -76,7 +99,7 @@ function updatePositions() {
 		$(thumb).find('.positionLabel span').text(index);
 	});
 	$('#unusedThumbs .thumb').each((index, thumb) => {
-		$(thumb).attr('data-position', 'none');
+		$(thumb).attr('data-position', "-1");
 		$(thumb).find('.positionLabel span').text('-');
 	});
 	setTimeout(refreshLayout, 1);

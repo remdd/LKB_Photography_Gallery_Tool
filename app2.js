@@ -312,6 +312,11 @@ lkb.server = {
 				res.render('newgallery2', {gallery: gallery});
 			});
 		});
+		app.post('/g', (req, res) => {
+			console.log("\n\n\n\n\n************************************************")
+			console.log(req.body);
+			res.sendStatus(200);
+		});
 		app.get('/exit', (req, res) => {
 			console.log("Exiting...");
 			this.stop(() => {
