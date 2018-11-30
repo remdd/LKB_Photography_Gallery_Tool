@@ -1,53 +1,146 @@
+//	Global variables
+var $thumbsPackery, $unusedPackery;
 var gallery;
 
-function loadGalleryMaker() {
-	console.log("Gallery maker loading...");
-
+//	Init function
+function loadGalleryMaker(loadedGallery) {
+	console.log("Loading gallery maker...");
+	gallery = loadedGallery;
 	//	Configure thumb list as packery
 	setUpPackery();
 }
 
+
 //	Packery functions
 function setUpPackery() {
-	//	Declare Packery container & contents
-	gallery = $('#thumbs').packery({
+	$thumbsPackery = $('#thumbs').packery({
 		itemSelector: '.thumb',
 		columnWidth: '.thumbSizer',
 		percentPosition: true,
 		gutter: '.thumbGutter'
 	});
 	//	Reassign packery positions to thumbnails whenever layout is dragged
-	// gallery.on('layoutComplete', updateLayout);
-	gallery.on('dragItemPositioned', orderItems);
-	setUpThumbs();
-	$('#thumbs .thumb').on('start', () => {
-		console.log("£ASDSDFASDFA");
+	$thumbsPackery.on('dragItemPositioned', () => {
+		console.log("Dragged!");
+		updatePositions();
 	});
-	$('#thumbs .thumb').trigger('start');
-	$('#thumbs .thumb').trigger('drag');
-	$('#thumbs .thumb').trigger('stop');
+
+	//	Declare unused thumb Packery container & contents
+	$unusedPackery = $('#unusedThumbs').packery({
+		itemSelector: '.thumb',
+		columnWidth: '.thumbSizer',
+		percentPosition: true,
+		gutter: '.thumbGutter'
+	});
+	//	Reassign packery positions to thumbnails whenever layout is dragged
+	$unusedPackery.on('dragItemPositioned', () => {
+		console.log("Dragged!");
+		updatePositions();
+	});
+
+	$('#toggleIconBtn').click(() => {
+		$('.positionLabel').toggle();
+		$('.toggleBtn').toggle();
+	})
 
 	//	3 / 4 column switch listener
 	$('.colBtn').on('change', function() {
 		console.log(".colBtn changed!");
 		if($('#colBtn3').prop('checked')) {
 			setColumns(3);
+			gallery.cols = 3;
 		} else if($('#colBtn4').prop('checked')) {
 			setColumns(4);
+			gallery.cols = 4;
 		};
-		console.log(gallery);
 	});
 
-	orderItems();
+	$('#saveGalleryBtn').click(e => {
+		e.preventDefault();
+		gallery.displayName = $('#displayName').val();
+		gallery.photos = [];
+		$('.thumb').each((index, thumb) => {
+			let photo = {
+				position: $(thumb).attr('data-position'),
+				displayed: $(thumb).hasClass('removed') ? 'false' : 'true',
+				filename: $(thumb).attr('data-filename')
+			}
+			gallery.photos.push(photo);
+		});
+		let url = '/g?name=' + gallery.name;
+		$.post(url, gallery, (res) => {
+			console.log(res);
+		});
+	});
+
+	setUpThumbs();
 }
+
 //	Set thumbs in thumb list as draggable using jQuery UI draggable
 function setUpThumbs() {
 	var $galleryThumbs = $('#thumbs .thumb').draggable();
-	gallery.packery('bindUIDraggableEvents', $galleryThumbs);
-	$('#thumbs .thumb').each((index, element) => {
-		//	?
+	$thumbsPackery.packery('unbindUIDraggableEvents', $galleryThumbs);
+	$thumbsPackery.packery('bindUIDraggableEvents', $galleryThumbs);
+	var $unusedThumbs = $('#unusedThumbs .thumb').draggable();
+	$unusedPackery.packery('unbindUIDraggableEvents', $unusedThumbs);
+	$unusedPackery.packery('bindUIDraggableEvents', $unusedThumbs);
+	addToggleListeners();
+	updatePositions();
+}
+
+//	Call after any movement of thumbnails to update references
+function updatePositions() {
+	console.log("Updating positions...");
+	//	Iterate thumbnails again...
+	var thumbnails = $('#thumbs .thumb');
+	thumbnails.sort(compareRowThenCol);
+	thumbnails.each((index, thumb) => {
+		$(thumb).attr('data-position', index);
+		$(thumb).find('.positionLabel span').text(index);
+	});
+	$('#unusedThumbs .thumb').each((index, thumb) => {
+		$(thumb).attr('data-position', "-1");
+		$(thumb).find('.positionLabel span').text('-');
+	});
+	setTimeout(refreshLayout, 1);
+}
+
+
+//	Refresh positions of packery elements
+function refreshLayout() {
+	console.log("Refreshing layout...");
+	$thumbsPackery.packery();
+	$unusedPackery.packery();
+}
+
+
+function addToggleListeners() {
+	$('.toggleBtn').off('click');
+	$('.toggleBtn').on('click', function() {
+		toggleThumb($(this).parent());
 	});
 }
+
+
+function toggleThumb($thumb) {
+	console.log($thumb);
+	console.log("Toggling");
+	if($thumb.hasClass('removed')) {
+		$thumb.removeClass('removed');
+		$thumb2 = $thumb.clone();
+		$unusedPackery.packery('remove', $thumb);
+		$thumbsPackery.append($thumb2).packery('appended', $thumb2);
+		setUpThumbs();
+	} else {
+		$thumb.addClass('removed');
+		$thumb2 = $thumb.clone();
+		$thumbsPackery.packery('remove', $thumb);
+		$unusedPackery.append($thumb2).packery('appended', $thumb2);
+		setUpThumbs();
+	}
+}
+
+
 //	Change number of columns
 function setColumns(cols) {
 	console.log("Setting cols... " + cols);
@@ -58,16 +151,9 @@ function setColumns(cols) {
 		$('.thumb, .thumbSizer').removeClass('col3');
 		$('.thumb, .thumbSizer').addClass('col4');
 	}
-	orderItems();
-}
-//	Assign packery position to each thumbnail
-function orderItems() {
-	console.log("Ordering thumbnails...");
+	updatePositions();
 }
 
-function updateLayout() {
-	console.log("Updating layout...");
-}
 
 
 //	Utility functions
@@ -77,7 +163,7 @@ function unescapeHTML(input) {
 	return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 }
 
-function compare(a, b) {
+function comparePosition(a, b) {
 	if(a.position < b.position) {
 		return -1;
 	}
@@ -85,4 +171,20 @@ function compare(a, b) {
 		return 1;
 	}
 	return 0;
+}
+
+function compareRowThenCol(x, y) {
+	let a = $(x), b = $(y);
+	if(a.offset().top < b.offset().top) {
+		return -1;
+	}
+	if(a.offset().top > b.offset().top) {
+		return 1;
+	}
+	if(a.offset().left < b.offset().left) {
+		return -1;
+	}
+	if(a.offset().left > b.offset().left) {
+		return 1;
+	}
 }

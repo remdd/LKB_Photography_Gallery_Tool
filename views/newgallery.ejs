@@ -21,19 +21,25 @@
 			<input type="radio" name="columns" value="4" class="colBtn" id="colBtn4">4
 		</form>
 
-		<form id="saveForm" action="/savegallery" method="POST">
+<!-- 		<form id="saveForm" action="/savegallery" method="POST"> -->
+		<form id="saveForm" onsubmit="event.preventDefault();">
 			<div>
 				<label for="displayName">Gallery display name: </label>
-				<input type="text" name="displayName">
+				<input type="text" name="displayName" id="displayName">
 			</div>
-			<input id="saveGalleryBtn" type="submit" value="Save gallery" disabled>
+			<input id="saveGalleryBtn" type="submit" value="Save gallery">
 		</form>
-		
+
+		<button id="toggleIconBtn">Toggle icons</button>
 	</div>
 
 	<div id="container">
 		<ul id="thumbs">
-			<div class="thumbSizer col3"></div>
+			<div class="thumbSizer"></div>
+			<div class="thumbGutter"></div>
+ 		</ul>
+ 		<ul id="unusedThumbs">
+			<div class="thumbSizer"></div>
 			<div class="thumbGutter"></div>
  		</ul>
 	</div>
@@ -43,29 +49,55 @@
 	<script type="text/javascript">
 
 		$(() => {
-			//	Load thumbs from XML
-			let encodedHTML = "<%=gallery.xml%>";
-			let decodedHTML = unescapeHTML(encodedHTML);
-			var galleryName = "<%=gallery.name%>";
-			var galleryParent = "<%=gallery.parent%>";
-			var photos = [];
-			$(decodedHTML).find('gallery photo').each((index, photo) => {
+			//	Load gallery object from server
+			let encodedXML = "<%=gallery.xml%>";
+			let $xml = $(unescapeHTML(encodedXML));
+			var gallery = {
+				name: "<%=gallery.name%>",
+				parent: "<%=gallery.parent%>",
+				displayName: $xml.find('gallery').attr('displayName'),
+				cols: $xml.find('gallery').attr('columns'),
+				photos: [],
+				xml: unescapeHTML(encodedXML)
+			}
+			console.log(gallery);
+			$('#displayName').val(gallery.displayName);
+			$('.thumbSizer').addClass('col' + gallery.cols);
+			if(gallery.cols === '4') {
+				$('#colBtn4').prop('checked', true);
+			} else {
+				$('#colBtn3').prop('checked', true);
+			}
+			//	Iterate photos and add objects to gallery's photo array
+			$xml.find('gallery photo').each((index, photo) => {
 				let photoObj = {
-					'position': $(photo).attr('position'),
-					'filename': $(photo).text()
+					position: parseInt($(photo).attr('position')),
+					displayed: $(photo).attr('displayed') === 'true' ? true : false,
+					filename: $(photo).text()
 				}
-				photos.push(photoObj);
+				gallery.photos.push(photoObj);
 			});
-			photos.sort(compare);
-			photos.forEach(photo => {
+			//	Sort photos by position
+			gallery.photos.sort(comparePosition);
+			//	Add photos to DOM
+			gallery.photos.forEach(photo => {
 				let path = '../' + photo.filename;
-				let element = '<li class="thumb col3" data-filename="' + path + '">' +
-					'<img src="' + galleryParent + '/' + galleryName + '/' + photo.filename + '"></li>';
-				$('#thumbs').append(element);	
+				let $element = $(
+					'<li class="thumb col' + gallery.cols + '" data-position="' + photo.position + '" data-filename="' + photo.filename + '">' +
+					'<img src="' + gallery.parent + '/' + gallery.name + '/' + photo.filename + '">' + 
+					'<div class="positionLabel"><span></span></div>' +
+					'<div class="toggleBtn removeBtn"></div>' +
+					'</li>');
+				if(photo.displayed) {
+					$element.appendTo('#thumbs');
+				} else {
+					$element.addClass('removed');
+					$element.appendTo('#unusedThumbs');
+				}
 			});
-			console.log(photos);
+			console.log(gallery.photos);
 			$('#thumbs').imagesLoaded(() => {
-				loadGalleryMaker();
+				loadGalleryMaker(gallery);
 			});
 		});
 
