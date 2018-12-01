@@ -7,11 +7,10 @@ var rls 						= require('readline-sync'),
 		bodyParser 			= require('body-parser'),
 		opn 						=	require('opn'),
 		xmljs 					=	require('xml-js'),
+		del 						=	require('del'),
 		path						=	require('path');
 
 var stdout = process.stdout;
-
-var menu;
 
 //	Gallery application structure object
 const lkb = {
@@ -33,8 +32,10 @@ var server;
 
 const PORT = 6105;
 
+var menu;
+
 //	Gallery tool user interface menu object
-function Menu() {
+Menu = function() {
 	this.main = function() {
 		stdout.write("\n\n----------------------------------------------");
 		stdout.write("\nWelcome to the LKB Photography gallery editor!");
@@ -81,7 +82,6 @@ function Menu() {
 				choice = parseInt(rls.question('\nChoice not recognised! Please try again: '));
 			}
 		}
-		stdout.write(`\nChoice: ${choice}\n`);
 		return choice;
 	},
 	this.enterToContinue = function(customMessage) {
@@ -105,43 +105,107 @@ function Menu() {
 		stdout.write('\nBye!\n\n')
 		process.exit(0);
 	},
+
 	this.createNewGallery = function() {
 		stdout.write('\nCreating new gallery...');
-		var newGallery = {}
-		newGallery.name = this.getNewFolderName().toLowerCase();
-		newGallery.path = path.join(lkb.path.full, newGallery.name);
-		this.createNewFolder(newGallery);
-		this.readJpgsInFolder(newGallery, true);
-		this.processJpgs(newGallery);
-		this.setDisplayName(newGallery);
-		this.createNewXml(newGallery);
-		let choice = this.getChoice(2, true, `\nEnter '1' to view and edit layout of the '${newGallery.name}' gallery, or '0' to return to the main menu: `);
-		if(choice === 1) {
-			this.editGallery(newGallery.name);
-		} else if(choice === 0) {
-			newMenu();
+		let newGallery = {}
+		while(!newGallery.name) {
+			newGallery.name = this.getNewFolderName(newGallery);
 		}
-	},
-	//	Gallery functions
-	this.getNewFolderName = function() {
-		this.loadGalleryFolders();
-		let name, validName = false;
-		while(!validName) {
-			name = rls.question(`\nEnter your new folder name, or '0' to return to the menu: `);
-			if(name.length === 0) {
-				stdout.write('\nYou must enter a new folder name!');
-			} else if(name === '0') {
+		if(newGallery.name === '0') {
+			newMenu();
+		} else {
+			newGallery.name = newGallery.name.toLowerCase();
+			newGallery.path = path.join(lkb.path.full, newGallery.name);
+			this.createNewFolder(newGallery);
+
+			let filesAdded;
+			while(!filesAdded) {
+				filesAdded = this.readJpgsInFolder(newGallery, true);
+			}
+			if(filesAdded === '0') {
+				this.deleteGallery(newGallery);
 				newMenu();
-			} else if(!lkb.folderNameRegex.test(name)) {
-				stdout.write('\n\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.');
-			} else if(lkb.galleries.indexOf(name.toLowerCase()) > -1) {
-				stdout.write('\nA folder with that name already exists!');
 			} else {
-				validName = true;
+				this.processJpgs(newGallery);
+				while(!newGallery.displayName) {
+					newGallery.displayName = this.setDisplayName(newGallery);
+				}
+				if(newGallery.displayName === '0') {
+					this.deleteGallery(newGallery);
+					newMenu();
+				} else {
+					this.createNewXml(newGallery);
+					let choice = this.getChoice(2, true, `\nEnter '1' to view and edit layout of the '${newGallery.name}' gallery, or '0' to return to the main menu: `);
+					if(choice === 1) {
+						this.editGallery(newGallery.name);
+					} else if(choice === 0) {
+						newMenu();
+					}
+				}
 			}
 		}
-		stdout.write("XXXXXXXXXXXXXXXX");
-		return name;
+	},
+
+
+	this.readJpgsInFolder = function(gallery, copyPhotosAlert) {
+		gallery.rawJpgs = [];
+		if(copyPhotosAlert) {
+			stdout.write('\nBefore continuing, please copy the photos to be displayed in this new gallery into this new folder.');
+			stdout.write("\nPhotos must be in '.jpg' format.");
+			stdout.write('\nHit enter when all photos have been copied to the new folder...');
+			this.enterToContinue();
+		}
+		let files = fs.readdirSync(gallery.path);
+		files.forEach(file => {
+			if(file.slice(-4).toLowerCase() === '.jpg') {
+				gallery.rawJpgs.push(file);
+			}
+		});
+		if(gallery.rawJpgs.length === 0) {
+			stdout.write('\nNo photos were detected in the folder!\n');
+			let choice = this.getChoice(2, true, "Enter '1' to try again, or '0' to return to the main menu: ");
+			if(choice === 0) {
+				return '0';
+			} else {
+				return false;
+			}
+		} else {
+			return true;
+		}
+	},
+
+
+	this.deleteGallery = function(gallery) {
+		stdout.write(`\nDeleting folder: ${gallery.path}`);
+		del.sync([gallery.path]);
+	}
+	//	Gallery functions
+	this.getNewFolderName = function(gallery) {
+		this.loadGalleryFolders();
+		// let validName = false;
+		let name = rls.question(`\nEnter your new folder name, or '0' to return to the menu: `);
+		if(name.length === 0) {
+			stdout.write('\nYou must enter a new folder name!');
+			return false;
+		} else if(!lkb.folderNameRegex.test(name)) {
+			stdout.write('\n\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.');
+			return false;
+		} else if(lkb.galleries.indexOf(name.toLowerCase()) > -1) {
+			stdout.write('\nA folder with that name already exists!');
+			return false;
+		} else {
+			return name;
+		}
+	},
+	this.setDisplayName = function(gallery) {
+		let displayName = rls.question(`\nEnter a new display name for the "${gallery.name}" gallery, or '0' to cancel and delete it: `);
+		if(displayName.length === 0) {
+			stdout.write('\nYou must give the gallery a display name!');
+			return false;
+		} else {
+			return displayName;
+		}
 	},
 	this.createNewFolder = function(newGallery) {
 		stdout.write(`\nCreating folder for new gallery "${newGallery.name}"...`);
@@ -154,34 +218,7 @@ function Menu() {
 			stdout.write(err);
 		}
 	},
-	this.readJpgsInFolder = function(gallery, copyPhotosAlert) {
-		gallery.rawJpgs = [];
-		while(gallery.rawJpgs.length === 0) {
-			try {
-				if(copyPhotosAlert) {
-					stdout.write('\nBefore continuing, please copy the photos to be displayed in this new gallery into this new folder.');
-					stdout.write("\nPhotos must be in '.jpg' format.");
-					stdout.write('\nHit enter when all photos have been copied to the new folder...');
-					this.enterToContinue();
-				}
-				let files = fs.readdirSync(gallery.path);
-				files.forEach(file => {
-					if(file.slice(-4).toLowerCase() === '.jpg') {
-						gallery.rawJpgs.push(file);
-					}
-				});
-				if(gallery.rawJpgs.length === 0) {
-					stdout.write('\nNo photos were detected in the folder!\n');
-					let choice = this.getChoice(2, false, "Enter '1' to try again, or '0' to return to the main menu: ");
-					if(choice === 0) {
-						newMenu();
-					}
-				}
-			} catch(err) {
-				stdout.write(err);
-			}
-		}
-	},
+
 	this.processJpgs = function(gallery) {
 		this.checkForImageMagick();
 		gallery.jpgFiles = [];
@@ -204,14 +241,6 @@ function Menu() {
 			gallery.jpgFiles.push(newFileName);
 		});
 		stdout.write(`\n${gallery.jpgFiles.length} Images in "${gallery.name}" have been formatted and thumbnails have been created.\n`);
-	},
-	this.setDisplayName = function(gallery) {
-		let displayName = rls.question(`\nEnter a new display name for the "${gallery.name}" gallery: `);
-		while(displayName.length === 0) {
-			stdout.write('\nYou must give the gallery a display name!');
-			displayName = rls.question(`\nEnter a new display name for the "${gallery.name}" gallery: `);
-		}
-		gallery.displayName = displayName;
 	},
 	this.createNewXml = function(gallery) {
 		stdout.write("\nCreating layout file...");
@@ -312,7 +341,7 @@ function Menu() {
 		let filedata = fs.readFileSync(filepath, 'utf8');
 		gallery.xml = filedata.replace(/(\r\n|\n|\r|\t)/gm,"");
 		callback();
-	} 
+	}
 }
 
 //	Server
@@ -346,6 +375,9 @@ lkb.server = {
 			if(callback && typeof callback === 'function') {
 				callback();
 			}
+			process.on('SIGHUP', () => {
+				stdout.write(`\nSIGHUP!!\n`);
+			})
 		});
 	},
 	stop: function(callback) {
@@ -355,12 +387,13 @@ lkb.server = {
 		}
 	},
 	displayGallery: function(name) {
-		stdout.write(`\nShowing gallery: ${name}`);
+		stdout.write(`\nShowing gallery: ${name}\n`);
 		opn(`http://localhost:${PORT}/g?name=${name}`);
 	}
 }
 
 function newMenu() {
+	stdout.write("\n\n\n\n\n");
 	menu = new Menu();
 	menu.main();
 }

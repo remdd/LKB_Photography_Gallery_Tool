@@ -106,6 +106,13 @@
 					$element.addClass('removed');
 					$element.appendTo('#unusedThumbs');
 				}
+				$element.find('img').on('error', (e) => {
+					let $missingImgLi = $(e.target).parent();
+					let label = '<p>Missing file: ' + $missingImgLi.find('img').attr('src') + '</p>';
+					$missingImgLi.append(label);
+					$missingImgLi.addClass('removed');
+					$missingImgLi.appendTo('#unusedThumbs');
+				});
 			});
 			console.log(gallery.photos);
 			$('#thumbs').imagesLoaded(() => {
