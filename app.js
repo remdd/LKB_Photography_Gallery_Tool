@@ -11,6 +11,8 @@ var rls 						= require('readline-sync'),
 
 var stdout = process.stdout;
 
+var menu;
+
 //	Gallery application structure object
 const lkb = {
 	path: {
@@ -32,8 +34,8 @@ var server;
 const PORT = 6105;
 
 //	Gallery tool user interface menu object
-lkb.menu = {
-	main: function() {
+function Menu() {
+	this.main = function() {
 		stdout.write("\n\n----------------------------------------------");
 		stdout.write("\nWelcome to the LKB Photography gallery editor!");
 		stdout.write("\n----------------------------------------------");
@@ -43,32 +45,26 @@ lkb.menu = {
 		stdout.write("\nEnter '0' to exit.\n");
 		//	Get user choice
 		let choice = this.getChoice(4, true);
-		// try {
-			switch(choice) {
-				case 0:
-					this.exit();
-					break;
-				case 1:
-					this.createNewGallery();
-					break;
-				case 2:
-					this.editGallery();
-					break;
-				case 3:
-					this.editHomepage();
-					break;
-				default:
-					throw 'Invalid choice!';
-					break;
-			// }
-		// } catch(err) {
-		// 	stdout.write('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-		// 	stdout.write(err);
-		// 	this.main();
+		switch(choice) {
+			case 0:
+				this.exit();
+				break;
+			case 1:
+				this.createNewGallery();
+				break;
+			case 2:
+				this.editGallery();
+				break;
+			case 3:
+				this.editHomepage();
+				break;
+			default:
+				throw 'Invalid choice!';
+				break;
 		}
 	},
 	//	User input functions
-	getChoice: function(numberOfOptions, startFromZero, message) {
+	this.getChoice = function(numberOfOptions, startFromZero, message) {
 		//	Return validated user input for menu selections
 		let choice;
 		if(message) {
@@ -85,9 +81,10 @@ lkb.menu = {
 				choice = parseInt(rls.question('\nChoice not recognised! Please try again: '));
 			}
 		}
+		stdout.write(`\nChoice: ${choice}\n`);
 		return choice;
 	},
-	enterToContinue: function(customMessage) {
+	this.enterToContinue = function(customMessage) {
 		//	Pause menu flow until user hits enter 
 		if(!customMessage || typeof customMessage !== 'string') {
 			rls.question('\nHit enter to continue...   ');
@@ -96,19 +93,19 @@ lkb.menu = {
 		}
 	},
 	//	Main menu functions
-	editGallery: function(name) {
+	this.editGallery = function(name) {
 		stdout.write('\nEditing existing gallery...');
 		this.selectExistingFolder(name);
 	},
-	editHomepage: function() {
+	this.editHomepage = function() {
 		stdout.write('\nEditing homepage...');
-		this.main();
+		newMenu();
 	},
-	exit: function() {
+	this.exit = function() {
 		stdout.write('\nBye!\n\n')
 		process.exit(0);
 	},
-	createNewGallery: function() {
+	this.createNewGallery = function() {
 		stdout.write('\nCreating new gallery...');
 		var newGallery = {}
 		newGallery.name = this.getNewFolderName().toLowerCase();
@@ -118,21 +115,23 @@ lkb.menu = {
 		this.processJpgs(newGallery);
 		this.setDisplayName(newGallery);
 		this.createNewXml(newGallery);
-		let choice = this.getChoice(2, false, `\nEnter '1' to view and edit layout of the "${newGallery.name}" gallery, or '2' to return to the main menu: `);
+		let choice = this.getChoice(2, true, `\nEnter '1' to view and edit layout of the '${newGallery.name}' gallery, or '0' to return to the main menu: `);
 		if(choice === 1) {
 			this.editGallery(newGallery.name);
-		} else if(choice === 2) {
-			this.main();
+		} else if(choice === 0) {
+			newMenu();
 		}
 	},
 	//	Gallery functions
-	getNewFolderName: function() {
+	this.getNewFolderName = function() {
 		this.loadGalleryFolders();
 		let name, validName = false;
 		while(!validName) {
-			name = rls.question('\nEnter your new folder name: ');
+			name = rls.question(`\nEnter your new folder name, or '0' to return to the menu: `);
 			if(name.length === 0) {
 				stdout.write('\nYou must enter a new folder name!');
+			} else if(name === '0') {
+				newMenu();
 			} else if(!lkb.folderNameRegex.test(name)) {
 				stdout.write('\n\nFolder names can only contain alphanumeric characters and - or _ symbols, with no spaces.');
 			} else if(lkb.galleries.indexOf(name.toLowerCase()) > -1) {
@@ -141,9 +140,10 @@ lkb.menu = {
 				validName = true;
 			}
 		}
+		stdout.write("XXXXXXXXXXXXXXXX");
 		return name;
 	},
-	createNewFolder: function(newGallery) {
+	this.createNewFolder = function(newGallery) {
 		stdout.write(`\nCreating folder for new gallery "${newGallery.name}"...`);
 		try {
 			fs.mkdirSync(newGallery.path)
@@ -154,9 +154,8 @@ lkb.menu = {
 			stdout.write(err);
 		}
 	},
-	readJpgsInFolder: function(gallery, copyPhotosAlert) {
+	this.readJpgsInFolder = function(gallery, copyPhotosAlert) {
 		gallery.rawJpgs = [];
-		console.log(gallery);
 		while(gallery.rawJpgs.length === 0) {
 			try {
 				if(copyPhotosAlert) {
@@ -173,9 +172,9 @@ lkb.menu = {
 				});
 				if(gallery.rawJpgs.length === 0) {
 					stdout.write('\nNo photos were detected in the folder!\n');
-					let choice = this.getChoice(2, false, "Enter '1' to try again, or '2' to return to the main menu: ");
-					if(choice === 2) {
-						this.main();
+					let choice = this.getChoice(2, false, "Enter '1' to try again, or '0' to return to the main menu: ");
+					if(choice === 0) {
+						newMenu();
 					}
 				}
 			} catch(err) {
@@ -183,12 +182,13 @@ lkb.menu = {
 			}
 		}
 	},
-	processJpgs: function(gallery) {
+	this.processJpgs = function(gallery) {
 		this.checkForImageMagick();
 		gallery.jpgFiles = [];
 		gallery.rawJpgs.forEach((jpgFile, index) => {
 			let newFileName = gallery.name + '_' + index + '.jpg';
 			let newFilePath = path.join(gallery.path, newFileName);
+			stdout.write(`\nProcessing ${newFilePath}...`);
 			fs.renameSync(path.join(gallery.path, jpgFile), newFilePath);
 			if(process.platform === 'win32') {
 				cp.execSync('magick mogrify -geometry 1250x1250 ' + newFilePath);
@@ -205,7 +205,7 @@ lkb.menu = {
 		});
 		stdout.write(`\n${gallery.jpgFiles.length} Images in "${gallery.name}" have been formatted and thumbnails have been created.\n`);
 	},
-	setDisplayName: function(gallery) {
+	this.setDisplayName = function(gallery) {
 		let displayName = rls.question(`\nEnter a new display name for the "${gallery.name}" gallery: `);
 		while(displayName.length === 0) {
 			stdout.write('\nYou must give the gallery a display name!');
@@ -213,7 +213,7 @@ lkb.menu = {
 		}
 		gallery.displayName = displayName;
 	},
-	createNewXml: function(gallery) {
+	this.createNewXml = function(gallery) {
 		stdout.write("\nCreating layout file...");
 		//	XML syntax
 		if(!gallery.cols) { 
@@ -226,7 +226,7 @@ lkb.menu = {
 		content += '\t</gallery>\n' + '</document>\n';
 		this.saveXmlFile(gallery, content);
 	},
-	updateXml: function(gallery) {
+	this.updateXml = function(gallery) {
 		stdout.write("\nUpdating layout file...");
 		let content = this.insertXMLHeader(gallery);
 		gallery.path = path.join(lkb.path.full, gallery.name);
@@ -236,12 +236,7 @@ lkb.menu = {
 		content += '\t</gallery>\n' + '</document>\n';
 		this.saveXmlFile(gallery, content);
 	},
-	saveXmlFile: function(gallery, xmlString) {
-		console.log("\n\n\n\n\n")
-		console.log(gallery);
-		console.log("\n\n\n\n\n")
-		console.log(xmlString);
-		console.log("\n\n\n\n\n")
+	this.saveXmlFile = function(gallery, xmlString) {
 		try {
 			fs.writeFileSync(path.join(gallery.path, gallery.name.toLowerCase() + '.xml'), xmlString);		
 			stdout.write(`\nLayout file "${gallery.name.toLowerCase()}.xml" has been saved for the "${gallery.name}" gallery.`);
@@ -250,10 +245,10 @@ lkb.menu = {
 			stdout.write(err);
 		}
 	},
-	insertXMLHeader: function(gallery) {
+	this.insertXMLHeader = function(gallery) {
 		return '<?xml version="1.0" encoding="UTF-8"?>\n' + '<document>\n' + `\t<gallery folder="${gallery.name}" displayname="${gallery.displayName}" columns="${gallery.cols}">\n`;
 	},
-	checkForImageMagick: function() {
+	this.checkForImageMagick = function() {
 		// console.log(process.platform);
 		let output;
 		if(process.platform === 'win32') {
@@ -266,60 +261,58 @@ lkb.menu = {
 			stdout.write("\n\nImageMagick is not installed!");
 			stdout.write("\nTo process photos using this tool, you must install the ImageMagick command line tool from https://imagemagick.org.");
 			this.enterToContinue();
-			this.main();
+			newMenu();
 		} else {
 			stdout.write("ImageMagick detected...");
 		}
 	},
-	selectExistingFolder: function(name) {
+	this.selectExistingFolder = function(name) {
 		this.loadGalleryFolders();
 		if(lkb.galleries.length === 0) {
-			stdout.write(`\nThere are not currently any galleries!\n`)
-			this.main();
+			stdout.write(`\nThere are not currently any galleries!\n`);
+			newMenu();
 		} else {
-			if(!name) {
+			if(name) {
+				if(lkb.galleries.indexOf(name) === -1) {
+					stdout.write(`\nThe "${name}" gallery does not exist!`);
+					newMenu();
+				} else {
+					this.showGallery(name);
+				}
+			} else {
 				stdout.write(`\nCurrent galleries:\n`);
 				lkb.galleries.forEach((gallery, index) => {
 					stdout.write(`\n  ${index+1}: ${gallery}`);
 				});
 				let choice = this.getChoice(lkb.galleries.length+1, true, "\nEnter the number of the gallery to continue, or '0' to return to the menu: ");
 				if(choice === 0) {
-					this.main();
+					newMenu();
 				} else {
 					name = lkb.galleries[choice-1];
-				}
-			} else {
-				if(lkb.galleries.indexOf(name) === -1) {
-					stdout.write(`\nThe "${name}" gallery does not exist!`);
-					this.main();
+					this.showGallery(name);
 				}
 			}
-			this.showGallery(name);
 		}
 	},
-	loadGalleryFolders: function() {
+	this.loadGalleryFolders = function() {
 		lkb.galleries = [];
 		let galleries = fs.readdirSync(lkb.path.full).map(name => path.join(lkb.path.full, name)).filter(this.checkIfFolder);
 		galleries.forEach(gallery => {
 			lkb.galleries.push(path.basename(gallery).toLowerCase());
 		});
 	},
-	showGallery: function(name) {
-		stdout.write(`\n\nShowing ${name}`);
-		lkb.server.showGallery(name);
+	this.showGallery = function(name) {
+		lkb.server.displayGallery(name);
 	},
-	checkIfFolder: function(target) {
+	this.checkIfFolder = function(target) {
 		return fs.lstatSync(target).isDirectory();
 	},
-	parseXmlFile: function(gallery, callback) {
+	this.parseXmlFile = function(gallery, callback) {
 		let filepath = path.join(lkb.path.full, gallery.name, gallery.name.toLowerCase() + '.xml');
 		let filedata = fs.readFileSync(filepath, 'utf8');
-		console.log("\n__________________filedata:\n")
-		console.log(filedata);
 		gallery.xml = filedata.replace(/(\r\n|\n|\r|\t)/gm,"");
-		console.log(gallery.xml);
 		callback();
-	}
+	} 
 }
 
 //	Server
@@ -330,21 +323,19 @@ lkb.server = {
 				parent: lkb.path.galleries,
 				name: req.query.name
 			};
-			lkb.menu.parseXmlFile(gallery, () => {
+			menu.parseXmlFile(gallery, () => {
 				res.render('newgallery', {gallery: gallery});
 			});
 		});
 		app.post('/g', (req, res) => {
-			console.log("\n\nRequest received!");
-			console.log(req.body);
-			lkb.menu.updateXml(req.body);
+			menu.updateXml(req.body);
 			res.sendStatus(200);
 		});
 		app.get('/exit', (req, res) => {
 			console.log("Exiting...");
 			this.stop(() => {
 				res.sendStatus(200);
-				lkb.menu.main();
+				newMenu();
 			});
 		});
 		if(server) {
@@ -358,24 +349,26 @@ lkb.server = {
 		});
 	},
 	stop: function(callback) {
-		console.log("Stopping server...");
+		console.log("\nStopping server...");
 		if(callback && typeof callback === 'function') {
 			callback();
 		}
 	},
-	showGallery: function(name, callback) {
+	displayGallery: function(name) {
 		stdout.write(`\nShowing gallery: ${name}`);
 		opn(`http://localhost:${PORT}/g?name=${name}`);
-		if(callback && typeof callback === 'function') {
-			callback();
-		}
 	}
+}
+
+function newMenu() {
+	menu = new Menu();
+	menu.main();
 }
 
 //	Launch
 function start() {
 	lkb.server.start(() => {
-		lkb.menu.main();
+		newMenu();
 	});
 }
 

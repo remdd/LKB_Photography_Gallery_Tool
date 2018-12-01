@@ -41,6 +41,11 @@ function setUpPackery() {
 	$('#toggleIconBtn').click(() => {
 		$('.positionLabel').toggle();
 		$('.toggleBtn').toggle();
+		if($('.toggleBtn').is(':visible')) {
+			$('#toggleIconBtn').text('Hide icons');
+		} else {
+			$('#toggleIconBtn').text('Show icons');
+		}
 	})
 
 	//	3 / 4 column switch listener
@@ -68,12 +73,65 @@ function setUpPackery() {
 			gallery.photos.push(photo);
 		});
 		let url = '/g?name=' + gallery.name;
+		let errorTimeout = setTimeout(() => {
+			showPopup('saveError');
+		}, 2000);
 		$.post(url, gallery, (res) => {
-			console.log(res);
+			if(res === 'OK') {
+				clearTimeout(errorTimeout);
+				showPopup('saveSuccess');
+			} else {
+				showPopup('saveError');
+			}
 		});
 	});
 
+	$('#exitBtn').click(e => {
+		exit();
+	});
+
+	$('#popupExitBtn').click(e => {
+		exit();
+	});
+
+	$('#popupContinueBtn').click(e => {
+		$('#popup').fadeOut();
+	});
+
+
+	$('#hideUnusedThumbs').click(e => {
+		$('#unusedThumbs').toggle();
+		if($('#unusedThumbs').is(':visible')) {
+			$('#hideUnusedThumbs').text('Hide unused photos');
+		} else {
+			$('#hideUnusedThumbs').text('Show unused photos');
+		}
+		updatePositions();
+	});
+
 	setUpThumbs();
+}
+
+function showPopup(message) {
+	if(message === 'saveSuccess') {
+		$('#popupTitle').text('Gallery saved!');
+		$('#popupText').text('Would you like to continue editing or exit and return to the menu?');
+	} else if(message === 'saveError') {
+		$('#popupTitle').text('Something went wrong...');
+		$('#popupText').text("Please try to remember exactly what you did, don't touch anything and contact your tech support Flopsy to ask him (nicely) for some help!");
+	}
+	$('#popup').fadeIn();
+}
+
+function exit() {
+	let url = '/exit';
+	$.get(url, (res) => {
+		if(res === 'OK') {
+			window.close();
+		} else {
+			//		??? handle this somehow
+		}
+	});
 }
 
 //	Set thumbs in thumb list as draggable using jQuery UI draggable
@@ -154,6 +212,13 @@ function setColumns(cols) {
 	updatePositions();
 }
 
+
+//	Send exit command to server if browser tab is closed improperly
+window.addEventListener('beforeunload', e => {
+	e.preventDefault();
+	console.log("Closing!");
+	exit();
+});
 
 
 //	Utility functions
