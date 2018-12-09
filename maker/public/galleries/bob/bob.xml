@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<gallery folder="bob" displayname="Norway VEGAN" columns="4">
+		<photo position="0" displayed="true">bob_1.jpg</photo>
+		<photo position="1" displayed="true">bob_8.jpg</photo>
+		<photo position="2" displayed="true">bob_4.jpg</photo>
+		<photo position="3" displayed="true">bob_6.jpg</photo>
+		<photo position="4" displayed="true">bob_5.jpg</photo>
+		<photo position="5" displayed="true">bob_12.jpg</photo>
+		<photo position="6" displayed="true">bob_2.jpg</photo>
+		<photo position="7" displayed="true">bob_7.jpg</photo>
+		<photo position="8" displayed="true">bob_11.jpg</photo>
+		<photo position="9" displayed="true">bob_9.jpg</photo>
+		<photo position="10" displayed="true">bob_10.jpg</photo>
+		<photo position="11" displayed="true">bob_15.jpg</photo>
+		<photo position="12" displayed="true">bob_16.jpg</photo>
+		<photo position="13" displayed="true">bob_20.jpg</photo>
+		<photo position="14" displayed="true">bob_21.jpg</photo>
+		<photo position="18" displayed="true">bob_17.jpg</photo>
+		<photo position="16" displayed="true">bob_18.jpg</photo>
+		<photo position="17" displayed="true">bob_22.jpg</photo>
+		<photo position="15" displayed="true">bob_19.jpg</photo>
+		<photo position="-1" displayed="false">bob_24.jpg</photo>
+		<photo position="-1" displayed="false">bob_23.jpg</photo>
+		<photo position="-1" displayed="false">bob_25.jpg</photo>
+		<photo position="-1" displayed="false">bob_0.jpg</photo>
+		<photo position="-1" displayed="false">bob_14.jpg</photo>
+		<photo position="-1" displayed="false">bob_13.jpg</photo>
+		<photo position="-1" displayed="false">bob_3.jpg</photo>
+	</gallery>
+</document>
