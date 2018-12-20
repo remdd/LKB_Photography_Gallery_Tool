@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  padding: 0; }
+
+#thumbs {
+  max-width: 1200px;
+  padding: 0; }
+
+.thumb {
+  display: inline-block;
+  user-select: none;
+  box-sizing: border-box;
+  margin: 0;
+  float: left;
+  font-size: 0;
+  position: relative;
+  animation: reveal 0.5s forwards;
+  opacity: 0; }
+  .thumb.col3 {
+    width: 32%; }
+  .thumb.col4 {
+    width: 23.5%; }
+  .thumb img {
+    width: 100%; }
+
+@keyframes reveal {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+.thumbGutter {
+  width: 2%; }
+
+.thumbSizer.col3 {
+  width: 32%; }
+.thumbSizer.col4 {
+  width: 23.5%; }
+
+#footer {
+  background: grey;
+  width: 100%; }
+
+/*# sourceMappingURL=lkb.css.map */

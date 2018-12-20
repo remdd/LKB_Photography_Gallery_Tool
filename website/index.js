@@ -8,6 +8,7 @@ var express 				= require('express'),
 	path							=	require('path'),
 	fs								=	require('fs-extra'),
 	util							=	require('util'),
+	xml2json					=	require('xml2json'),
 	app 							= express();
 
 app.set('view engine', 'ejs');
@@ -30,12 +31,15 @@ lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 
 //	ROUTES	//
 app.get('/', function(req, res) {
-	res.render('homepage');
+	res.render('home', {galleryXml: 'home'});
 });
 
 app.get('/g', (req, res) => {
-	let gallery = req.query.name;
-	res.render('gallery', {gallery: gallery});
+	let galleryName = req.query.name;
+	loadGalleryXml(galleryName, (galleryXml) => {
+		console.log("*******************************\n", galleryXml);
+		res.render('gallery', {galleryXml: galleryXml});
+	});
 });
 
 
@@ -47,14 +51,43 @@ function loadGalleryNames() {
 		});
 }
 
+function loadGalleryXml(galleryName, callback) {
+	let xmlPath = path.join(lkb.path.full, galleryName, galleryName + '.xml');
+	fs.readFile(xmlPath, 'utf8', (err, data) => {
+		if(err) {
+			console.log(err);
+		} else {
+			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
+			data = xml2json.toJson(data);										//	Parse XML doc to JSON
+			data = addPhotoPaths(data);											//	Add public folder filepaths to photo filenames
+			data.document.gallery.photo.sort(compare);			//	Sort photos in 'position' order
+			callback(JSON.stringify(data));
+		}
+	})
+}
+
+function addPhotoPaths(galleryXml) {
+	galleryXml = JSON.parse(galleryXml);
+	galleryXml.document.gallery.photo.forEach((photo, index) => {
+		photo.path = path.join(lkb.path.galleries, galleryXml.document.gallery.folder, photo.$t);
+		photo.thumbPath = path.join(lkb.path.galleries, galleryXml.document.gallery.folder, 'thumbs', photo.$t);
+		console.log(photo.path);
+	});
+	return galleryXml;
+}
+
+function compare(a,b) {
+  if (a.position < b.position)
+    return -1;
+  if (a.position > b.position)
+    return 1;
+  return 0;
+}
+
 function checkIfFolder(target) {
 	return fs.lstatSync(target).isDirectory();
 }
 
-function loadGalleryXml(galleryName) {
-	let galleryObj = {};
-
-}
 
 
 function setup() {
