@@ -6,7 +6,6 @@ $(() => {
 	addImages();
 	$('#thumbs').imagesLoaded(() => {
 		setUpPackery();
-		revealImages();
 	});
 });
 
@@ -33,10 +32,9 @@ function addImages() {
 			$('.thumb').last().css('animation-delay', animDelay);
 		}
 	});
-}
-
-function revealImages() {
-
+	$('.thumb').last().one('animationend', () => {
+		showFooter();
+	});
 }
 
 function setUpPackery() {
@@ -47,3 +45,12 @@ function setUpPackery() {
 		gutter: '.thumbGutter'
 	});
 }
+
+function hideFooter() {
+	$('#footer').fadeOut('fast');
+}
+
+function showFooter() {
+	$('#footer').fadeIn('fast');
+}
+

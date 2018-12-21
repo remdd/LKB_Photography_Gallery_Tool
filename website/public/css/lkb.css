@@ -1,9 +1,9 @@
-body {
+#container {
+  max-width: 1200px;
   margin: 0;
   padding: 0; }
 
 #thumbs {
-  max-width: 1200px;
   padding: 0; }
 
 .thumb {
@@ -14,7 +14,7 @@ body {
   float: left;
   font-size: 0;
   position: relative;
-  animation: reveal 0.5s forwards;
+  animation: reveal 1s forwards;
   opacity: 0; }
   .thumb.col3 {
     width: 32%; }
@@ -37,7 +37,7 @@ body {
   width: 23.5%; }
 
 #footer {
-  background: grey;
+  text-align: center;
   width: 100%; }
 
 /*# sourceMappingURL=lkb.css.map */

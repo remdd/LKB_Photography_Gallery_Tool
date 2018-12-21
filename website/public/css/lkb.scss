@@ -1,12 +1,11 @@
-body {
+#container {
+	max-width: 1200px;
 	margin: 0;
 	padding: 0;
 }
 
 #thumbs {
-	max-width: 1200px;
-	// background: lightgrey;
-	padding: 0;
+	padding: 0;	
 }
 
 .thumb {
@@ -19,7 +18,7 @@ body {
 	font-size: 0;
 	// height: auto;
 	position: relative;
-	animation: reveal 0.5s forwards;
+	animation: reveal 1s forwards;
 	opacity: 0;
 	&.col3 {
 		width: 32%;
@@ -50,6 +49,6 @@ body {
 }
 
 #footer {
-	background: grey;
+	text-align: center;
 	width: 100%;
 }
