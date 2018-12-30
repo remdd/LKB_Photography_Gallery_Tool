@@ -1,6 +1,6 @@
 <% include ./partials/header %>
 
-<h1><%= JSON.parse(galleryXml).document.gallery.displayname %></h1>
+<h1><%= JSON.parse(galleryXml).document.gallery[0].$.displayname %></h1>
 
 <ul id="thumbs">
 	<div class="thumbSizer"></div>

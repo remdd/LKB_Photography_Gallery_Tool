@@ -10,8 +10,8 @@ $(() => {
 });
 
 function preloadImages() {
-	galleryXml.document.gallery.photo.forEach((photo, index) => {
-		if(photo.displayed === 'true') {
+	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
+		if(photo.$.displayed === 'true') {
 			$('<img/>')[0].src = photo.path;
 			$('<img/>')[0].src = photo.thumbPath;
 			console.log(photo);
@@ -20,14 +20,13 @@ function preloadImages() {
 }
 
 function addImages() {
-	$('.thumbSizer').addClass('col' + galleryXml.document.gallery.columns);
-	galleryXml.document.gallery.photo.forEach((photo, index) => {
-		if(photo.displayed === 'true') {
+	$('.thumbSizer').addClass('col' + galleryXml.document.gallery[0].$.columns);
+	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
+		if(photo.$.displayed === 'true') {
 			let thumb = 
-				'<li class="thumb hidden col' + parseInt(galleryXml.document.gallery.columns) + '">' +
+				'<li class="thumb hidden col' + parseInt(galleryXml.document.gallery[0].$.columns) + '">' +
 				'<img src="' + photo.thumbPath + '"/></li>'
 			let animDelay = (index * 60) + 'ms';
-			console.log(animDelay);
 			$('#thumbs').append(thumb);
 			$('.thumb').last().css('animation-delay', animDelay);
 		}

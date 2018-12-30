@@ -8,7 +8,7 @@ var express 				= require('express'),
 	path							=	require('path'),
 	fs								=	require('fs-extra'),
 	util							=	require('util'),
-	xml2json					=	require('xml2json'),
+	xml2js 						=	require('xml2js'),
 	app 							= express();
 
 app.set('view engine', 'ejs');
@@ -58,28 +58,38 @@ function loadGalleryXml(galleryName, callback) {
 			console.log(err);
 		} else {
 			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
-			data = xml2json.toJson(data);										//	Parse XML doc to JSON
-			data = addPhotoPaths(data);											//	Add public folder filepaths to photo filenames
-			data.document.gallery.photo.sort(compare);			//	Sort photos in 'position' order
-			callback(JSON.stringify(data));
+			console.log(data);
+			console.log(`\n\n${typeof data}\n\n`)
+			xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
+				if(err) {
+					console.log(err);
+				} else {
+					console.log(util.inspect(parsedXml, false, null))
+					parsedXml = addPhotoPaths(parsedXml);											//	Add public folder filepaths to photo filenames
+					parsedXml.document.gallery[0].photo.sort(compare);			//	Sort photos in 'position' order
+					callback(JSON.stringify(parsedXml));
+				}
+			});
 		}
 	})
 }
 
-function addPhotoPaths(galleryXml) {
-	galleryXml = JSON.parse(galleryXml);
-	galleryXml.document.gallery.photo.forEach((photo, index) => {
-		photo.path = path.join(lkb.path.galleries, galleryXml.document.gallery.folder, photo.$t);
-		photo.thumbPath = path.join(lkb.path.galleries, galleryXml.document.gallery.folder, 'thumbs', photo.$t);
+function addPhotoPaths(parsedXml) {
+	console.log(parsedXml.document.gallery[0]);
+	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
+		console.log(photo);
+		photo.path = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
+		photo.thumbPath = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
 		console.log(photo.path);
 	});
-	return galleryXml;
+	return parsedXml;
 }
 
 function compare(a,b) {
-  if (a.position < b.position)
+	console.log(a.$.position);
+  if (a.$.position < b.$.position)
     return -1;
-  if (a.position > b.position)
+  if (a.$.position > b.$.position)
     return 1;
   return 0;
 }
