@@ -57,6 +57,9 @@ function setUpPackery() {
 		} else if($('#colBtn4').prop('checked')) {
 			setColumns(4);
 			gallery.cols = 4;
+		} else if($('#colBtn5').prop('checked')) {
+			setColumns(5);
+			gallery.cols = 5;
 		};
 	});
 
@@ -203,11 +206,14 @@ function toggleThumb($thumb) {
 function setColumns(cols) {
 	console.log("Setting cols... " + cols);
 	if(cols === 3) {
-		$('.thumb, .thumbSizer').removeClass('col4');
+		$('.thumb, .thumbSizer').removeClass('col4 col5');
 		$('.thumb, .thumbSizer').addClass('col3');
 	} else if(cols === 4) {
-		$('.thumb, .thumbSizer').removeClass('col3');
+		$('.thumb, .thumbSizer').removeClass('col3 col5');
 		$('.thumb, .thumbSizer').addClass('col4');
+	} else if(cols === 5) {
+		$('.thumb, .thumbSizer').removeClass('col3 col4');
+		$('.thumb, .thumbSizer').addClass('col5');
 	}
 	updatePositions();
 }

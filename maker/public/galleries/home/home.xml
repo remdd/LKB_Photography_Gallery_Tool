@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<gallery folder="home" displayname="home" columns="5">
+		<photo position="0" displayed="true">home_2.jpg</photo>
+		<photo position="1" displayed="true">home_7.jpg</photo>
+		<photo position="2" displayed="true">home_24.jpg</photo>
+		<photo position="3" displayed="true">home_11.jpg</photo>
+		<photo position="4" displayed="true">home_23.jpg</photo>
+		<photo position="5" displayed="true">home_15.jpg</photo>
+		<photo position="6" displayed="true">home_4.jpg</photo>
+		<photo position="7" displayed="true">home_21.jpg</photo>
+		<photo position="8" displayed="true">home_1.jpg</photo>
+		<photo position="9" displayed="true">home_9.jpg</photo>
+		<photo position="10" displayed="true">home_10.jpg</photo>
+		<photo position="11" displayed="true">home_0.jpg</photo>
+		<photo position="12" displayed="true">home_6.jpg</photo>
+		<photo position="15" displayed="true">home_3.jpg</photo>
+		<photo position="14" displayed="true">home_19.jpg</photo>
+		<photo position="13" displayed="true">home_17.jpg</photo>
+		<photo position="16" displayed="true">home_22.jpg</photo>
+		<photo position="17" displayed="true">home_18.jpg</photo>
+		<photo position="-1" displayed="false">home_5.jpg</photo>
+		<photo position="-1" displayed="false">home_8.jpg</photo>
+		<photo position="-1" displayed="false">home_12.jpg</photo>
+		<photo position="-1" displayed="false">home_13.jpg</photo>
+		<photo position="-1" displayed="false">home_14.jpg</photo>
+		<photo position="-1" displayed="false">home_20.jpg</photo>
+		<photo position="-1" displayed="false">home_25.jpg</photo>
+		<photo position="-1" displayed="false">home_16.jpg</photo>
+	</gallery>
+</document>

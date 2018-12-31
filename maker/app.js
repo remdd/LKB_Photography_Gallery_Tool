@@ -270,6 +270,7 @@ Menu = function() {
 	this.updateXml = function(gallery) {
 		stdout.write("\nUpdating layout file...");
 		let content = this.insertXMLHeader(gallery);
+		console.log(gallery);
 		gallery.path = path.join(lkb.path.full, gallery.name);
 		gallery.photos.forEach((photo, index) => {
 			content += `\t\t<photo position="${photo.position}" displayed="${photo.displayed}">${photo.filename}</photo>\n`;
@@ -281,6 +282,7 @@ Menu = function() {
 		try {
 			fs.writeFileSync(path.join(gallery.path, gallery.name.toLowerCase() + '.xml'), xmlString);		
 			stdout.write(`\nLayout file "${gallery.name.toLowerCase()}.xml" has been saved for the "${gallery.name}" gallery.`);
+			console.log(xmlString);
 		} catch(err) {
 			stdout.write('Error saving file!');
 			stdout.write(err);

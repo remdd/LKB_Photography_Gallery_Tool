@@ -87,12 +87,6 @@ button {
 	font-size: 0;
 	// height: auto;
 	position: relative;
-	&.col3 {
-		width: 32%;
-	}
-	&.col4 {
-		width: 23.5%;
-	}
 	img {
 		width: 100%;
 	}
@@ -141,11 +135,14 @@ button {
 .thumbGutter {
 	width: 2%;
 }
-.thumbSizer {
+.thumbSizer, .thumb {
 	&.col3 {
 		width: 32%;
 	}
 	&.col4 {
 		width: 23.5%;
+	}
+	&.col5 {
+		width: 18.4%;
 	}
 }

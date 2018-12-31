@@ -1,10 +1,52 @@
-#container {
-	max-width: 1200px;
+body {
+	font-family: 'Comfortaa', sans-serif;
+}
+
+h1 {
+	font-family: 'Nunito', sans-serif;
+	text-transform: uppercase;
+	font-size: 1em;
+	font-weight: normal;
 	margin: 0;
+}
+
+.container {
+	max-width: 1366px;
+	// background: rgba(255,150,0,0.2);
+	margin: 0 auto;
 	padding: 0;
+	display: flex;
+}
+
+nav {
+	flex-basis: 15%;
+	// background: rgba(255,150,150,0.5);
+}
+.thumbDiv {
+	flex-basis: 70%;
+	// background: rgba(150,150,255,0.5);
+}
+.gutter {
+	flex-basis: 15%;
+	// background: rgba(150,255,150,0.5);
+}
+
+//	Responsive sizing
+@media (min-width: 1366px) {		//	Full size
+	body { background: rgba(255,255,255,1); }
+}
+@media (min-width: 768px) and (max-width: 1365px) {
+	body { background: rgba(255,235,235,1); }
+}
+@media (min-width: 321px) and (max-width: 767px) {
+	body { background: rgba(255,215,215,1); }
+}
+@media (max-width: 320px) {
+	body { background: rgba(255,195,195,1); }
 }
 
 #thumbs {
+	margin: 0;
 	padding: 0;	
 }
 
@@ -20,12 +62,6 @@
 	position: relative;
 	animation: reveal 1s forwards;
 	opacity: 0;
-	&.col3 {
-		width: 32%;
-	}
-	&.col4 {
-		width: 23.5%;
-	}
 	img {
 		width: 100%;
 	}
@@ -39,12 +75,15 @@
 .thumbGutter {
 	width: 2%;
 }
-.thumbSizer {
+.thumbSizer, .thumb {
 	&.col3 {
 		width: 32%;
 	}
 	&.col4 {
 		width: 23.5%;
+	}
+	&.col5 {
+		width: 18.4%;
 	}
 }
 

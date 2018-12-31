@@ -31,13 +31,16 @@ lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 
 //	ROUTES	//
 app.get('/', function(req, res) {
-	res.render('home', {galleryXml: 'home'});
+	loadGalleryXml('home', (galleryXml) => {
+		console.log("*******************************\n", galleryXml);
+		res.render('home', {galleryXml: galleryXml});
+	})
 });
 
 app.get('/g', (req, res) => {
 	let galleryName = req.query.name;
 	loadGalleryXml(galleryName, (galleryXml) => {
-		console.log("*******************************\n", galleryXml);
+		// console.log("*******************************\n", galleryXml);
 		res.render('gallery', {galleryXml: galleryXml});
 	});
 });
@@ -58,13 +61,10 @@ function loadGalleryXml(galleryName, callback) {
 			console.log(err);
 		} else {
 			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
-			console.log(data);
-			console.log(`\n\n${typeof data}\n\n`)
 			xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
 				if(err) {
-					console.log(err);
 				} else {
-					console.log(util.inspect(parsedXml, false, null))
+					// console.log(util.inspect(parsedXml, false, null))
 					parsedXml = addPhotoPaths(parsedXml);											//	Add public folder filepaths to photo filenames
 					parsedXml.document.gallery[0].photo.sort(compare);			//	Sort photos in 'position' order
 					callback(JSON.stringify(parsedXml));
@@ -75,18 +75,14 @@ function loadGalleryXml(galleryName, callback) {
 }
 
 function addPhotoPaths(parsedXml) {
-	console.log(parsedXml.document.gallery[0]);
 	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
-		console.log(photo);
 		photo.path = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
 		photo.thumbPath = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
-		console.log(photo.path);
 	});
 	return parsedXml;
 }
 
 function compare(a,b) {
-	console.log(a.$.position);
   if (a.$.position < b.$.position)
     return -1;
   if (a.$.position > b.$.position)

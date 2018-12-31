@@ -10,17 +10,18 @@ $(() => {
 });
 
 function preloadImages() {
+	galleryXml.document.gallery[0].photo.sort(compare);
 	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
 			$('<img/>')[0].src = photo.path;
 			$('<img/>')[0].src = photo.thumbPath;
-			console.log(photo);
 		}
 	});
 }
 
 function addImages() {
 	$('.thumbSizer').addClass('col' + galleryXml.document.gallery[0].$.columns);
+	console.log(galleryXml.document.gallery[0]);
 	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
 			let thumb = 
@@ -53,3 +54,11 @@ function showFooter() {
 	$('#footer').fadeIn('fast');
 }
 
+function compare(a,b) {
+	console.log(a.$.position);
+  if (parseInt(a.$.position) < parseInt(b.$.position))
+    return -1;
+  if (parseInt(a.$.position) > parseInt(b.$.position))
+    return 1;
+  return 0;
+}
