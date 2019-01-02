@@ -33,7 +33,7 @@ lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 app.get('/', function(req, res) {
 	loadGalleryXml('home', (galleryXml) => {
 		console.log("*******************************\n", galleryXml);
-		res.render('home', {galleryXml: galleryXml});
+		res.render('gallery', {galleryXml: galleryXml});
 	})
 });
 

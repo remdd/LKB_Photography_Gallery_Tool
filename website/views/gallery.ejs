@@ -1,11 +1,44 @@
 <% include ./partials/header %>
 
-<h1><%= galleryXml.document.gallery[0].$.displayname %></h1>
+	<nav class="pane" data-simplebar>
+		<a href="/"><h1>Laura Kate Bemrose<br>Photography</h1></a>
+		<ul>
+			<li><a href="/g?name=cuba">Portraits</a></li>
+			<li><a href="/g?name=bob">Live Music</a></li>
+			<li><a href="/g?name=cuba">Behind The Scenes</a></li>
+			<li><a href="/g?name=bob">Theatre</a></li>
+		</ul>
+		<div class="contactIcons">
+			<i class="fab fa-fw fa-instagram instagramLink"></i>
+			<i class="far fa-fw fa-envelope emailLink"></i>
+		</div>
+		<div class="imgNav">
+			<i class="fas fa-angle-left"></i>
+			<span class="no-current">4</span> of <span class="no-total">12</span>
+			<i class="fas fa-angle-right"></i>
+			<i class="fas fa-fw fa-th toggleGrid"></i>
+			<i class="fas fa-fw fa-square toggleFull hidden"></i>
+		</div>
+	</nav>
 
-<ul id="thumbs">
-	<div class="thumbSizer"></div>
-	<div class="thumbGutter"></div>
-</ul>
+	<div class="pane thumbDiv" data-simplebar>
+		<div>
+			<ul id="thumbs">
+				<div class="thumbSizer"></div>
+				<div class="thumbGutter"></div>
+			</ul>
+			<div id="fullImg" hidden>
+				<img src="#">
+			</div>
+		</div>
+	</div>
 
+	<div class="pane rightPane">
+
+	</div>
+
+	<script type="text/javascript">
+		$('.toggleFull').hide();
+	</script>
 
 <% include ./partials/footer %>

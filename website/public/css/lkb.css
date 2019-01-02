@@ -1,55 +1,126 @@
 body {
-  font-family: "Comfortaa", sans-serif;
+  font-family: "Rubik", sans-serif;
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(255, 150, 150, 0.2);
+  color: #555;
 }
 
 h1 {
-  font-family: "Nunito", sans-serif;
+  font-family: "Yrsa", serif;
   text-transform: uppercase;
-  font-size: 1em;
+  font-size: 1.4em;
   font-weight: normal;
   margin: 0;
+  margin-top: -4px;
 }
 
 .container {
   max-width: 1366px;
+  height: 100vh;
   margin: 0 auto;
   padding: 0;
   display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+i.hidden {
+  display: none;
 }
 
 nav {
-  flex-basis: 15%;
+  position: relative;
+}
+nav ul {
+  margin-top: 40px;
+  padding: 0;
+}
+nav ul li {
+  list-style-type: none;
+  margin-top: 5px;
+}
+nav a {
+  color: #555;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+nav .contactIcons {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+}
+nav .contactIcons i {
+  margin-right: 4px;
+}
+nav .imgNav {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+nav .imgNav i {
+  margin-right: 4px;
+}
+nav .imgNav i.fa-angle-right {
+  margin-left: 4px;
 }
 
 .thumbDiv {
   flex-basis: 70%;
+  position: relative;
+  padding: 0 16px;
 }
 
-.gutter {
-  flex-basis: 15%;
+.rightPane {
+  position: relative;
 }
 
 @media (min-width: 1366px) {
   body {
     background: white;
   }
-}
-@media (min-width: 768px) and (max-width: 1365px) {
-  body {
-    background: #ffebeb;
+
+  .container {
+    padding: 5vh 0 0 0;
+    flex-direction: row;
+  }
+
+  nav {
+    margin-bottom: 5vh;
+    flex-basis: 15%;
+  }
+
+  .thumbDiv {
+    padding-bottom: 5vh;
+    flex-basis: 70%;
+  }
+
+  .rightPane {
+    flex-basis: 15%;
   }
 }
-@media (min-width: 321px) and (max-width: 767px) {
-  body {
-    background: #ffd7d7;
-  }
-}
-@media (max-width: 320px) {
+@media (min-width: 0px) and (max-width: 767px) {
   body {
     background: #ffc3c3;
   }
+
+  .container {
+    margin-top: 0px;
+    flex-direction: column;
+  }
 }
 #thumbs {
+  margin: 0;
+  padding: 0;
+}
+
+#fullImg {
   margin: 0;
   padding: 0;
 }
@@ -91,9 +162,11 @@ nav {
   width: 18.4%;
 }
 
-#footer {
-  text-align: center;
+.footer {
+  position: fixed;
+  bottom: 0;
   width: 100%;
+  text-align: center;
 }
 
 /*# sourceMappingURL=lkb.css.map */
