@@ -13,11 +13,16 @@
 			<i class="far fa-fw fa-envelope emailLink"></i>
 		</div>
 		<div class="imgNav">
-			<i class="fas fa-angle-left"></i>
-			<span class="no-current">4</span> of <span class="no-total">12</span>
-			<i class="fas fa-angle-right"></i>
-			<i class="fas fa-fw fa-th toggleGrid"></i>
-			<i class="fas fa-fw fa-square toggleFull hidden"></i>
+			<div class="gridNav notShown">
+				<span class="no-total"></span> images 
+				<i class="fas fa-fw fa-th toggleGrid"></i>
+			</div>
+			<div class="fullNav notShown">
+				<i class="fas fa-angle-left"></i>
+				<span class="no-current"></span> of <span class="no-total"></span>
+				<i class="fas fa-angle-right"></i>
+				<i class="fas fa-fw fa-square toggleFull"></i>
+			</div>
 		</div>
 	</nav>
 
@@ -38,7 +43,7 @@
 	</div>
 
 	<script type="text/javascript">
-		$('.toggleFull').hide();
+		$('.fullNav').hide();
 	</script>
 
 <% include ./partials/footer %>

@@ -33,11 +33,12 @@ h1 {
 	overflow: hidden;
 }
 
+.notShown {
+	display: none;
+}
+
 i {
 	// font-size: 1.2em;
-	&.hidden {
-		display: none;
-	}
 }
 
 nav {
@@ -77,9 +78,6 @@ nav {
 			&.fa-angle-right {
 				margin-left: 4px;
 			}
-			// &.toggleFull {
-			// 	display: none;
-			// }
 		}
 	}
 }

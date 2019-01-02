@@ -1,5 +1,4 @@
 var lkb = {
-	currentGallery: '',
 	displayMode: 'grid',
 	img: {
 		current: 0,
@@ -9,7 +8,6 @@ var lkb = {
 
 $(() => {
 	console.log("Connected!");
-	console.log(galleryXml);
 	loadGallery(galleryXml);
 
 	//	Perfect-scrollbar
@@ -27,6 +25,7 @@ $(() => {
 });
 
 function loadGallery(galleryXml) {
+	lkb.xml = galleryXml.document.gallery[0];
 	preloadImages();
 	addImages();
 	$('#thumbs').imagesLoaded(() => {
@@ -35,16 +34,18 @@ function loadGallery(galleryXml) {
 		});
 		showImgNav();
 		setUpPackery();
-		$('i .hidden').hide();
-		$('i .hidden').removeClass('hidden');
+		$('.notShown').hide();
+		$('.notShown').removeClass('notShown');
 	});
 }
 
 
 function preloadImages() {
-	galleryXml.document.gallery[0].photo.sort(compare);
-	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
+	lkb.img.total = 0;
+	lkb.xml.photo.sort(compare);
+	lkb.xml.photo.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
+			lkb.img.total++;
 			$('<img/>')[0].src = photo.path;
 			$('<img/>')[0].src = photo.thumbPath;
 		}
@@ -52,12 +53,12 @@ function preloadImages() {
 }
 
 function addImages() {
-	$('.thumbSizer').addClass('col' + galleryXml.document.gallery[0].$.columns);
-	console.log(galleryXml.document.gallery[0]);
-	galleryXml.document.gallery[0].photo.forEach((photo, index) => {
+	$('.thumbSizer').addClass('col' + lkb.xml.$.columns);
+	console.log(lkb.xml);
+	lkb.xml.photo.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
 			let thumb = 
-				'<li class="thumb hidden col' + parseInt(galleryXml.document.gallery[0].$.columns) + '">' +
+				'<li class="thumb hidden col' + parseInt(lkb.xml.$.columns) + '">' +
 				'<img src="' + photo.thumbPath + '"/></li>'
 			let animDelay = (index * 60) + 'ms';
 			$('#thumbs').append(thumb);
@@ -68,7 +69,7 @@ function addImages() {
 		}
 	});
 	$('.thumb').last().one('animationend', () => {
-		showFooter();
+		showImgNav();
 	});
 }
 
@@ -81,12 +82,12 @@ function showImgNav(displayMode) {
 		lkb.displayMode = displayMode;
 	}
 	if(lkb.displayMode === 'grid') {
-		$('.toggleFull').fadeOut('fast', () => {
-			$('.toggleGrid').fadeIn('slow');
+		$('.fullNav').fadeOut('fast', () => {
+			$('.gridNav').fadeIn('slow');
 		});
 	} else if(lkb.displayMode === 'full') {
-		$('.toggleGrid').fadeOut('fast', () => {
-			$('.toggleFull').fadeIn('slow');
+		$('.gridNav').fadeOut('fast', () => {
+			$('.fullNav').fadeIn('slow');
 		});
 	}
 	$('.no-current').text(lkb.img.current);

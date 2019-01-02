@@ -28,7 +28,7 @@ h1 {
   overflow: hidden;
 }
 
-i.hidden {
+.notShown {
   display: none;
 }
 
