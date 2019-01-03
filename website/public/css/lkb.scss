@@ -78,6 +78,9 @@ nav {
 			&.fa-angle-right {
 				margin-left: 4px;
 			}
+			&.toggleGrid {
+				margin-left: 4px;
+			}
 		}
 	}
 }
@@ -109,6 +112,20 @@ nav {
 	.thumbDiv { 
 		padding-bottom: 5vh;
 		flex-basis: 70%;
+	}
+	#fullImg {
+		// background: rgba(100,255,150,0.3);
+		padding-bottom: 5vh;
+		text-align: center;
+		height: 90vh;
+		img {
+			display: inline-block;
+			max-height: 100%;
+			max-width: 100%;
+		}
+	}
+	.ps__rail-y {
+		margin-bottom: 5vh;
 	}
 	.rightPane { 
 		flex-basis: 15%; 

@@ -12,27 +12,27 @@
 			<i class="fab fa-fw fa-instagram instagramLink"></i>
 			<i class="far fa-fw fa-envelope emailLink"></i>
 		</div>
-		<div class="imgNav">
-			<div class="gridNav notShown">
+		<div class="imgNav notShown">
+			<div class="gridNav">
 				<span class="no-total"></span> images 
 				<i class="fas fa-fw fa-th toggleGrid"></i>
 			</div>
-			<div class="fullNav notShown">
-				<i class="fas fa-angle-left"></i>
+			<div class="fullNav">
+				<i class="fas fa-angle-left prevBtn"></i>
 				<span class="no-current"></span> of <span class="no-total"></span>
-				<i class="fas fa-angle-right"></i>
+				<i class="fas fa-angle-right nextBtn"></i>
 				<i class="fas fa-fw fa-square toggleFull"></i>
 			</div>
 		</div>
 	</nav>
 
 	<div class="pane thumbDiv" data-simplebar>
-		<div>
-			<ul id="thumbs">
+		<div id="mainDiv">
+			<ul id="thumbs" class="mainPane">
 				<div class="thumbSizer"></div>
 				<div class="thumbGutter"></div>
 			</ul>
-			<div id="fullImg" hidden>
+			<div id="fullImg" class="mainPane" hidden>
 				<img src="#">
 			</div>
 		</div>
