@@ -19,7 +19,17 @@
 
 <!-- Load gallery XML from server & make available to .js -->
 <script type="text/javascript">
-	var galleryXml = <%-galleryXml%>;
+	<% if(locals.categoryXml) { %>
+		var categoryXml = <%-locals.categoryXml%>;
+	<% } %>
+	<% if(locals.galleryXml) { %>
+		var galleryXml = <%-locals.galleryXml%>;
+		console.log(`\n*********************************\n${galleryXml}`);
+	<% } %>
+	<% if(locals.photo) { %>
+		var photo = '<%=locals.photo%>';
+		console.log(`\n*********************************\n${photo}`);
+	<% } %>
 </script>
 <!------------------------------------>
 

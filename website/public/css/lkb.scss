@@ -123,6 +123,23 @@ nav {
 			max-height: 100%;
 			max-width: 100%;
 		}
+		.fullNav {
+			height: 100%;
+			position: absolute;
+			width: 50%;
+			top: 0;
+			z-index: 1;
+			&.left {
+				// background: rgba(255,100,100,0.2);
+				left: 0;
+				cursor: url('../img/left_arrow.svg'), auto ;
+			}
+			&.right {
+				// background: rgba(100,255,100,0.2);
+				right: 0;
+				cursor: url('../img/right_arrow.svg'), auto ;
+			}
+		}
 	}
 	.ps__rail-y {
 		margin-bottom: 5vh;
@@ -149,16 +166,21 @@ nav {
 }
 // @media (max-width: 320px) {}
 
-#thumbs {
+.mainPane {
 	margin: 0;
 	padding: 0;	
+}
+
+#thumbs {
 	// background: rgba(255,80,80,0.3);
 }
 #fullImg {
-	margin: 0;
-	padding: 0;
 	// background: rgba(80,255,80,0.3);
 }
+#covers {
+	background: rgba(80,255,80,0.3);
+}
+
 
 .thumb {
 	display: inline-block;
@@ -172,6 +194,7 @@ nav {
 	position: relative;
 	animation: reveal 1s forwards;
 	opacity: 0;
+	cursor: pointer;
 	img {
 		width: 100%;
 	}

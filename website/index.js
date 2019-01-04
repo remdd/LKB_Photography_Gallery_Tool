@@ -33,17 +33,33 @@ lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 app.get('/', function(req, res) {
 	loadGalleryXml('home', (galleryXml) => {
 		console.log("*******************************\n", galleryXml);
-		res.render('gallery', {galleryXml: galleryXml});
+		res.render('index', {galleryXml: galleryXml});
 	})
 });
 
-app.get('/g', (req, res) => {
-	let galleryName = req.query.name;
-	loadGalleryXml(galleryName, (galleryXml) => {
-		// console.log("*******************************\n", galleryXml);
-		res.render('gallery', {galleryXml: galleryXml});
+app.get('/c', (req, res) => {
+	let categoryName = req.query.category;
+	loadCategoryXml(categoryName, (categoryXml) => {
+		console.log("*******************************\n", categoryXml);
+		res.render('index', {categoryXml: categoryXml});
 	});
 });
+
+app.get('/g', (req, res) => {
+	let galleryName = req.query.gallery;
+	let photo = req.query.photo ? req.query.photo : undefined;
+	console.log(typeof photo);
+	console.log(photo);
+	loadGalleryXml(galleryName, (galleryXml) => {
+		// console.log("*******************************\n", galleryXml);
+		console.log({galleryXml: galleryXml, photo: photo});
+		res.render('index', {galleryXml: galleryXml, photo: photo});
+	});
+});
+
+function loadCategoryXml(categoryName, callback) {
+	callback(categoryName);
+}
 
 
 function loadGalleryNames() {
@@ -78,6 +94,7 @@ function addPhotoPaths(parsedXml) {
 	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
 		photo.path = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
 		photo.thumbPath = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
+		photo.name = photo._.slice(0, -4);
 	});
 	return parsedXml;
 }

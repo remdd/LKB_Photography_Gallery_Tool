@@ -92,6 +92,18 @@ nav {
       display: inline-block;
       max-height: 100%;
       max-width: 100%; }
+    #fullImg .fullNav {
+      height: 100%;
+      position: absolute;
+      width: 50%;
+      top: 0;
+      z-index: 1; }
+      #fullImg .fullNav.left {
+        left: 0;
+        cursor: url("../img/left_arrow.svg"), auto; }
+      #fullImg .fullNav.right {
+        right: 0;
+        cursor: url("../img/right_arrow.svg"), auto; }
 
   .ps__rail-y {
     margin-bottom: 5vh; }
@@ -105,13 +117,12 @@ nav {
   .container {
     margin-top: 0px;
     flex-direction: column; } }
-#thumbs {
+.mainPane {
   margin: 0;
   padding: 0; }
 
-#fullImg {
-  margin: 0;
-  padding: 0; }
+#covers {
+  background: rgba(80, 255, 80, 0.3); }
 
 .thumb {
   display: inline-block;
@@ -122,7 +133,8 @@ nav {
   font-size: 0;
   position: relative;
   animation: reveal 1s forwards;
-  opacity: 0; }
+  opacity: 0;
+  cursor: pointer; }
   .thumb img {
     width: 100%; }
 
