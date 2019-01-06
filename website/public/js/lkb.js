@@ -175,8 +175,12 @@ function viewPhoto(num, name) {
 		lkb.img.current = num;
 	}
 	lkb.img.currentName = lkb.photos[lkb.img.current].name;
-	lkb.view = 'photo';
-	updateState(true);
+	if(lkb.view === 'photo') {
+		updateState(false);
+	} else {
+		lkb.view = 'photo';
+		updateState(true);
+	}
 }
 
 function showImgNav() {
