@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<nav>
+		<link type="category" name="Live Music">
+			<gallery name="bob" cover="bob_6" description="<em>Bob</em> was here">
+			<gallery name="cuba" cover="cuba_2" description="Carribbean">
+		</link>
+		<link type="gallery" name="Springsteen"></link>
+		<link type="gallery" name="Behind the scenes"></link>
+		<link type="category" name="Cats">
+			<gallery name="bob" cover="bob_2" description="Theatre">
+			<gallery name="cuba" cover="cuba_1" description="Portraits">
+		</link>
+		<link type="about" name="About"></link>
+		<link type="contact" name="Contact"></link>
+	</nav>
+</document>

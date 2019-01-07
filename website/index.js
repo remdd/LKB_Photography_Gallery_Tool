@@ -24,7 +24,8 @@ const lkb = {
 		root: __dirname,
 		public: 'public',
 		galleries: 'galleries'
-	}
+	},
+	navXmlFile: 'nav.xml'
 }
 lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 
@@ -32,7 +33,8 @@ lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
 //	ROUTES	//
 app.get('/', function(req, res) {
 	loadGalleryXml('home', (galleryXml) => {
-		console.log("*******************************\n", galleryXml);
+		// console.log("*******************************\n", galleryXml);
+		console.log("SDFSDFSDFSDFSDFSDFSDFSD");
 		res.render('index', {galleryXml: galleryXml});
 	})
 });
@@ -48,17 +50,17 @@ app.get('/c', (req, res) => {
 app.get('/g', (req, res) => {
 	let galleryName = req.query.gallery;
 	let photo = req.query.photo ? req.query.photo : undefined;
-	console.log(typeof photo);
-	console.log(photo);
 	loadGalleryXml(galleryName, (galleryXml) => {
 		// console.log("*******************************\n", galleryXml);
-		console.log({galleryXml: galleryXml, photo: photo});
+		// console.log({galleryXml: galleryXml, photo: photo});
 		res.render('index', {galleryXml: galleryXml, photo: photo});
 	});
 });
 
 function loadCategoryXml(categoryName, callback) {
-	callback(categoryName);
+	loadNavXml({}, (parsedXml) => {
+		callback(JSON.stringify(parsedXml));
+	});
 }
 
 
@@ -79,15 +81,39 @@ function loadGalleryXml(galleryName, callback) {
 			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
 			xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
 				if(err) {
+					console.log(err);
 				} else {
 					// console.log(util.inspect(parsedXml, false, null))
 					parsedXml = addPhotoPaths(parsedXml);											//	Add public folder filepaths to photo filenames
 					parsedXml.document.gallery[0].photo.sort(compare);			//	Sort photos in 'position' order
-					callback(JSON.stringify(parsedXml));
+					loadNavXml(parsedXml, (parsedXml) => {
+						callback(JSON.stringify(parsedXml));
+					});
 				}
 			});
 		}
-	})
+	});
+}
+
+function loadNavXml(parsedXml, callback) {
+	let xmlPath = path.join(lkb.path.full, lkb.navXmlFile);
+	fs.readFile(xmlPath, 'utf8', (err, data) => {
+		if(err) {
+			console.log(err);
+		} else {
+			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
+			xml2js.parseString(data, {trim: true}, (err, parsedNavXml) => {
+				if(err) {
+					console.log(err);
+				} else {
+					// console.log(parsedNavXml)
+					// console.log(JSON.stringify(parsedNavXml));
+					parsedXml.navXml = parsedNavXml;
+					callback(parsedXml);
+				}
+			});
+		}
+	});
 }
 
 function addPhotoPaths(parsedXml) {

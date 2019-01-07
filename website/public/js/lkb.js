@@ -1,3 +1,7 @@
+//	ADD GOOGLE ANALYTICS ******VIRTUAL PAGEVIEWS******
+
+
+
 var lkb = {
 	view: 'grid',
 	img: {
@@ -12,7 +16,12 @@ var ps;
 
 //	Main function
 $(() => {
-	loadGallery(galleryXml);
+
+	if(categoryXml) {
+		loadCategory(categoryXml);
+	} else if(galleryXml) {
+		loadGallery(galleryXml);
+	}
 
 	//	Perfect-scrollbar
 	const thumbDiv = document.getElementsByClassName('thumbDiv')[0];
@@ -58,12 +67,12 @@ function updateState(hideNav) {
 	} else if(lkb.view === 'photo') {
 		$('#mainDiv').fadeOut('fast', () => {
 			lkb.img.currentName = lkb.photos[lkb.img.current].name;
-			refreshScrollbar();
 			$('.mainPane').hide();
 			$('#fullImg').show();
 			$('#fullImg img').attr('src', lkb.photos[lkb.img.current].path);
 			$('#fullImg').imagesLoaded(() => {
 				$('#mainDiv').fadeIn('fast');
+				refreshScrollbar();
 				if(hideNav) {
 					showImgNav();
 				} else {
@@ -115,6 +124,10 @@ function loadGallery(galleryXml, callback) {
 			callback();
 		}
 	});
+}
+
+function loadCategory(categoryXml, callback) {
+	console.log(categoryXml);
 }
 
 function showThumbnails() {
