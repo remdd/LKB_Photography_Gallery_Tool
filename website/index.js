@@ -11,15 +11,18 @@ var express 				= require('express'),
 	xml2js 						=	require('xml2js'),
 	app 							= express();
 
+var Promise = require("es6-promise").Promise;
+
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(logger('dev'));
+app.use(logger('common'));
 // app.use(favicon('public/img/CSFavicon.png'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 dotenv.config({path: '.env'});				//	Loads environment variables file
 
-const lkb = {
+//	Server config object
+const config = {
 	path: {
 		root: __dirname,
 		public: 'public',
@@ -27,103 +30,150 @@ const lkb = {
 	},
 	navXmlFile: 'nav.xml'
 }
-lkb.path.full = path.join(lkb.path.root, lkb.path.public, lkb.path.galleries);
+config.path.full = path.join(config.path.root, config.path.public, config.path.galleries);
 
 
-//	ROUTES	//
-app.get('/', function(req, res) {
-	loadGalleryXml('home', (galleryXml) => {
-		// console.log("*******************************\n", galleryXml);
-		console.log("SDFSDFSDFSDFSDFSDFSDFSD");
-		res.render('index', {galleryXml: galleryXml});
+
+///////////////////////////////////
+//	Build 'content map' object
+///////////////////////////////////
+var lkb = {
+	galleries: {}
+}
+
+//	Main content mapping function (called on server start)
+function mapSiteContent() {
+	console.log("...mapping site content...");
+	return new Promise((resolve, reject) => {
+		console.log(`\n\nInitial: ${JSON.stringify(lkb)}\n\n`);
+		loadNavXml(lkb)
+		.then(() => {
+			return addGalleryObjects(lkb)
+		})
+		.then(() => {
+			return loadGalleryContent(lkb)
+		})
+		.then(() => {
+			lkb = JSON.stringify(lkb);
+			console.log("...site content mapped!");
+			console.log(lkb);
+			resolve(lkb);
+		})
+		.catch(err => {
+			console.log("Failed!", err);
+		});
+	});
+}	
+
+function loadNavXml(lkb) {
+	console.log("...loading nav XML...");
+	return new Promise((resolve, reject) => {
+		let xmlPath = path.join(config.path.full, config.navXmlFile);
+		fs.readFile(xmlPath, 'utf8', (err, data) => {
+			if(err) {
+				reject(Error(err));
+			} else {
+				xml2js.parseString(data, {trim: true}, (err, parsedNavXml) => {
+					if(err) {
+					reject(Error(err));
+					} else {
+						lkb.nav = parsedNavXml;
+						console.log("\nResolving loadNavXml");
+						console.log(`${JSON.stringify(lkb)}\n`);
+						resolve(lkb);
+					}
+				});
+			}
+		});
+	});
+}
+
+function addGalleryObjects(lkb) {
+	console.log("...adding gallery objects...");
+	return new Promise((resolve, reject) => {
+		fs.readdir(config.path.full, (err, data) => {
+			if(err) {
+				reject(Error(err));
+			} else {
+				data = data.map(name => path.join(config.path.full, name)).filter(checkIfFolder);
+				data.forEach(galleryName => {
+					lkb.galleries[(path.basename(galleryName).toLowerCase())] = {};
+				});
+				console.log("\nResolving addGalleryObjects");
+				console.log(`${JSON.stringify(lkb)}\n`);
+				resolve(lkb);
+			}
+		})
+	});
+}
+
+function loadGalleryContent(lkb) {
+	console.log("...loading gallery content...");
+	return new Promise((resolve, reject) => {
+		let promises = [];
+		Object.keys(lkb.galleries).forEach((galleryName, index) => {
+			promises.push(loadGalleryXml(lkb, galleryName));
+		});
+		Promise.all(promises).then(() => {
+			console.log("\nResolving loadGalleryContent");
+			resolve(lkb);
+		});
+	});
+}
+
+function loadGalleryXml(lkb, galleryName) {
+	return new Promise((resolve, reject) => {
+		let xmlPath = path.join(config.path.full, galleryName, galleryName + '.xml');
+		fs.readFile(xmlPath, 'utf8', (err, data) => {
+			if(err) {
+				reject(Error(err));
+			} else {
+				xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
+					if(err) {
+						reject(Error(err));
+					} else {
+						//	Add public folder filepaths to photo filenames
+						parsedXml = addPhotoPaths(parsedXml);
+						//	Sort photos in 'position' order
+						parsedXml.document.gallery[0].photo.sort(compare);
+						lkb.galleries[galleryName] = parsedXml.document.gallery[0];
+						console.log(`Resolving loadGalleryXml for ${galleryName} : ${lkb.galleries[galleryName].$.displayname}`);
+						resolve(parsedXml);
+					}
+				});
+			}
+		});
 	})
-});
+}
 
-app.get('/c', (req, res) => {
-	let categoryName = req.query.category;
-	loadCategoryXml(categoryName, (categoryXml) => {
-		console.log("*******************************\n", categoryXml);
-		res.render('index', {categoryXml: categoryXml});
+function addPhotoPaths(parsedXml) {
+	console.log("...adding photo paths...");
+	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
+		photo.path = path.join(config.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
+		photo.thumbPath = path.join(config.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
+		photo.name = photo._.slice(0, -4);
 	});
-});
+	return parsedXml;
+}
 
-app.get('/g', (req, res) => {
-	let galleryName = req.query.gallery;
-	let photo = req.query.photo ? req.query.photo : undefined;
-	loadGalleryXml(galleryName, (galleryXml) => {
-		// console.log("*******************************\n", galleryXml);
-		// console.log({galleryXml: galleryXml, photo: photo});
-		res.render('index', {galleryXml: galleryXml, photo: photo});
-	});
-});
+
+
+
+
+
 
 function loadCategoryXml(categoryName, callback) {
+	console.log("...loading category XML...");
 	loadNavXml({}, (parsedXml) => {
 		callback(JSON.stringify(parsedXml));
 	});
 }
 
 
-function loadGalleryNames() {
-	lkb.galleries = [];
-	let galleries = fs.readdirSync(lkb.path.full).map(name => path.join(lkb.path.full, name)).filter(checkIfFolder);
-		galleries.forEach(gallery => {
-			lkb.galleries.push(path.basename(gallery).toLowerCase());
-		});
-}
 
-function loadGalleryXml(galleryName, callback) {
-	let xmlPath = path.join(lkb.path.full, galleryName, galleryName + '.xml');
-	fs.readFile(xmlPath, 'utf8', (err, data) => {
-		if(err) {
-			console.log(err);
-		} else {
-			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
-			xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
-				if(err) {
-					console.log(err);
-				} else {
-					// console.log(util.inspect(parsedXml, false, null))
-					parsedXml = addPhotoPaths(parsedXml);											//	Add public folder filepaths to photo filenames
-					parsedXml.document.gallery[0].photo.sort(compare);			//	Sort photos in 'position' order
-					loadNavXml(parsedXml, (parsedXml) => {
-						callback(JSON.stringify(parsedXml));
-					});
-				}
-			});
-		}
-	});
-}
-
-function loadNavXml(parsedXml, callback) {
-	let xmlPath = path.join(lkb.path.full, lkb.navXmlFile);
-	fs.readFile(xmlPath, 'utf8', (err, data) => {
-		if(err) {
-			console.log(err);
-		} else {
-			// data = JSON.stringify(JSON.parse(xml2json.toJson(data)), null, 2);
-			xml2js.parseString(data, {trim: true}, (err, parsedNavXml) => {
-				if(err) {
-					console.log(err);
-				} else {
-					// console.log(parsedNavXml)
-					// console.log(JSON.stringify(parsedNavXml));
-					parsedXml.navXml = parsedNavXml;
-					callback(parsedXml);
-				}
-			});
-		}
-	});
-}
-
-function addPhotoPaths(parsedXml) {
-	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
-		photo.path = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
-		photo.thumbPath = path.join(lkb.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
-		photo.name = photo._.slice(0, -4);
-	});
-	return parsedXml;
-}
+///////////////////////////////////
+//	Utility functions
+///////////////////////////////////
 
 function compare(a,b) {
   if (a.$.position < b.$.position)
@@ -134,21 +184,33 @@ function compare(a,b) {
 }
 
 function checkIfFolder(target) {
+	// console.log(`...checking if ${target} is a folder...`);
 	return fs.lstatSync(target).isDirectory();
 }
 
+///////////////////////////////////
+//	Routes
+///////////////////////////////////
 
-
-function setup() {
-	loadGalleryNames();
-	console.log(lkb.galleries);
-}
-
+app.get('/', function(req, res) {
+	console.log("...GET request on /...");
+	//	Create lkb object containing map of all site content to be passed to client 
+	res.render('index', {lkb: lkb});
+});
 
 
 
 //	Start server
-app.listen(process.env.PORT, process.env.IP, function() {
-	setup();
-	console.log("Server started");
-});
+function startServer() {
+	console.log("...starting server...");
+	mapSiteContent()
+	.then((response) => {
+		// console.log(`${JSON.stringify(lkb, null, 2)}\n`);
+		app.listen(process.env.PORT, process.env.IP, () => {
+			console.log("\n\n...server started...");
+		});
+	});
+}
+
+startServer();
+

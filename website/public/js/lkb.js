@@ -1,8 +1,6 @@
 //	ADD GOOGLE ANALYTICS ******VIRTUAL PAGEVIEWS******
 
-
-
-var lkb = {
+var config = {
 	view: 'grid',
 	img: {
 		current: 0,
@@ -29,12 +27,12 @@ $(() => {
 
 	//	Listeners
 	$('.toggleGrid').click(() => {
-		lkb.view = 'photo';
-		lkb.img.current = 0;
+		config.view = 'photo';
+		config.img.current = 0;
 		updateState(true);
 	});
 	$('.toggleFull').click(() => {
-		lkb.view = 'grid';
+		config.view = 'grid';
 		updateState(true);
 	});
 	$('.prevBtn, .fullNav.left').click(() => {
@@ -56,7 +54,7 @@ function updateState(hideNav) {
 	if(hideNav) {
 		hideImgNav();
 	}
-	if(lkb.view === 'grid') {
+	if(config.view === 'grid') {
 		$('#mainDiv').fadeOut('fast', () => {
 			$('.mainPane').hide();
 			$('#thumbs').show();
@@ -64,12 +62,12 @@ function updateState(hideNav) {
 			showThumbnails();
 			showImgNav();
 		});
-	} else if(lkb.view === 'photo') {
+	} else if(config.view === 'photo') {
 		$('#mainDiv').fadeOut('fast', () => {
-			lkb.img.currentName = lkb.photos[lkb.img.current].name;
+			config.img.currentName = config.photos[config.img.current].name;
 			$('.mainPane').hide();
 			$('#fullImg').show();
-			$('#fullImg img').attr('src', lkb.photos[lkb.img.current].path);
+			$('#fullImg img').attr('src', config.photos[config.img.current].path);
 			$('#fullImg').imagesLoaded(() => {
 				$('#mainDiv').fadeIn('fast');
 				refreshScrollbar();
@@ -80,7 +78,7 @@ function updateState(hideNav) {
 				}
 			});
 		});
-	} else if(lkb.view === 'covers') {
+	} else if(config.view === 'covers') {
 		$('#mainDiv').fadeOut('fast', () => {
 			refreshScrollbar();
 			$('.mainPane').hide();
@@ -96,26 +94,26 @@ function refreshScrollbar() {
 }
 
 function showPrevImg() {
-	let num = lkb.img.current - 1 < 0 ? lkb.img.total -1 : lkb.img.current - 1;
+	let num = config.img.current - 1 < 0 ? config.img.total -1 : config.img.current - 1;
 	viewPhoto(num);
 }
 
 function showNextImg() {
-	let num = lkb.img.current + 1 >= lkb.img.total ? 0 : lkb.img.current + 1;
+	let num = config.img.current + 1 >= config.img.total ? 0 : config.img.current + 1;
 	viewPhoto(num);
 }
 
 function loadGallery(galleryXml, callback) {
-	lkb.xml = galleryXml.document.gallery[0];
+	config.xml = galleryXml.document.gallery[0];
 	//	Filter xml to remove non-displayed photos
-	lkb.photos = lkb.xml.photo.filter(photo => {
+	config.photos = config.xml.photo.filter(photo => {
 		if(photo.$.displayed === 'true') {
 			return true;
 		} else {
 			return false;
 		}
 	});
-	console.log(lkb.photos);
+	console.log(config.photos);
 	preloadImages();
 	addImages();
 	$('#thumbs').imagesLoaded(() => {
@@ -140,11 +138,11 @@ function showThumbnails() {
 }
 
 function preloadImages() {
-	lkb.img.total = 0;
-	lkb.photos.sort(compare);
-	lkb.photos.forEach((photo, index) => {
+	config.img.total = 0;
+	config.photos.sort(compare);
+	config.photos.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
-			lkb.img.total++;
+			config.img.total++;
 			$('<img/>')[0].src = photo.path;
 			$('<img/>')[0].src = photo.thumbPath;
 		}
@@ -153,12 +151,12 @@ function preloadImages() {
 
 function addImages() {
 	console.log("Adding images...");
-	$('.thumbSizer').addClass('col' + lkb.xml.$.columns);
-	console.log(lkb.xml);
-	lkb.photos.forEach((photo, index) => {
+	$('.thumbSizer').addClass('col' + config.xml.$.columns);
+	console.log(config.xml);
+	config.photos.forEach((photo, index) => {
 		if(photo.$.displayed === 'true') {
 			let thumb = 
-				'<li class="thumb hidden col' + parseInt(lkb.xml.$.columns) + 
+				'<li class="thumb hidden col' + parseInt(config.xml.$.columns) + 
 				'" data-imgNo="' + index + 
 				'" data-imgName="' + photo.name + '">' +
 				'<img src="' + photo.thumbPath + '"/></li>'
@@ -183,46 +181,46 @@ function hideImgNav() {
 
 function viewPhoto(num, name) {
 	if(name) {
-		lkb.img.current = lkb.photos.findIndex(photo => photo.name === name);
+		config.img.current = config.photos.findIndex(photo => photo.name === name);
 	} else {
-		lkb.img.current = num;
+		config.img.current = num;
 	}
-	lkb.img.currentName = lkb.photos[lkb.img.current].name;
-	if(lkb.view === 'photo') {
+	config.img.currentName = config.photos[config.img.current].name;
+	if(config.view === 'photo') {
 		updateState(false);
 	} else {
-		lkb.view = 'photo';
+		config.view = 'photo';
 		updateState(true);
 	}
 }
 
 function showImgNav() {
-	if(lkb.view === 'grid') {
+	if(config.view === 'grid') {
 		$('.fullNav').hide();
 		$('.gridNav').show();
-	} else if(lkb.view === 'photo') {
+	} else if(config.view === 'photo') {
 		$('.gridNav').hide();
 		$('.fullNav').show();
 	}
-	$('.no-current').text(lkb.img.current + 1);
-	$('.no-total').text(lkb.img.total);
+	$('.no-current').text(config.img.current + 1);
+	$('.no-total').text(config.img.total);
 	$('.imgNav').fadeIn('fast');
 }
 
 function updateNav() {
-	$('.no-current').text(lkb.img.current + 1);
-	$('.no-total').text(lkb.img.total);
+	$('.no-current').text(config.img.current + 1);
+	$('.no-total').text(config.img.total);
 }
 
 function saveState() {
 	let stateString = '';
-	if(lkb.view === 'grid') {
-		stateString += 'g?gallery=' + lkb.xml.$.folder;
-	} else if(lkb.view === 'category') {
+	if(config.view === 'grid') {
+		stateString += 'g?gallery=' + config.xml.$.folder;
+	} else if(config.view === 'category') {
 		stateString += 'c?category=' + 'placeholder';
 	}
-	if(lkb.view === 'photo') {
-		stateString += 'g?gallery=' + lkb.xml.$.folder + '&photo=' + lkb.img.currentName;
+	if(config.view === 'photo') {
+		stateString += 'g?gallery=' + config.xml.$.folder + '&photo=' + config.img.currentName;
 	}
 	history.pushState({}, '', stateString);
 }

@@ -8,35 +8,28 @@
 	<script type="text/javascript" src="lib/perfect-scrollbar.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="lib/perfect-scrollbar.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-<!-- 	<link rel="stylesheet" href="https://unpkg.com/simplebar@latest/dist/simplebar.css" />
-	<script src="https://unpkg.com/simplebar@latest/dist/simplebar.js"></script> -->
+	<link rel="stylesheet" href="https://unpkg.com/simplebar@latest/dist/simplebar.css" />
+	<script src="https://unpkg.com/simplebar@latest/dist/simplebar.js"></script>
 	<link href="https://fonts.googleapis.com/css?family=Rubik|Yrsa" rel="stylesheet">
-	<script type="text/javascript" src="js/lkb.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/lkb.css">
 </head>
 <body>
 
-
 <!-- Load gallery XML from server & make available to .js -->
 <script type="text/javascript">
 
-	<% if(locals.categoryXml) { %>
-		var categoryXml = '<%-locals.categoryXml%>';
+	<% if(lkb) { %>
+		const lkb = <%- locals.lkb %>;
+		console.log(lkb);
 	<% } else { %>
-		var categoryXml = undefined;
-	<% } %>
-
-	<% if(locals.galleryXml) { %>
-		var galleryXml = <%-locals.galleryXml%>;
-	<% } else { %>
-		var galleryXml = undefined;
-	<% } %>
-
-	<% if(locals.photo) { %>
-		var photo = '<%=locals.photo%>';
+		const lkb = undefined;
 	<% } %>
 
 </script>
+<!------------------------------------>
+
+<!-- Main site JS -->	
+<script type="text/javascript" src="js/lkb.js"></script>
 <!------------------------------------>
 
 <div class="container">
