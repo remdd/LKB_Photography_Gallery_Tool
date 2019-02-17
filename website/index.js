@@ -56,7 +56,7 @@ function mapSiteContent() {
 		.then(() => {
 			lkb = JSON.stringify(lkb);
 			console.log("...site content mapped!");
-			console.log(lkb);
+			// console.log(lkb);
 			resolve(lkb);
 		})
 		.catch(err => {
@@ -129,6 +129,11 @@ function loadGalleryXml(lkb, galleryName) {
 				reject(Error(err));
 			} else {
 				xml2js.parseString(data, {trim: true}, (err, parsedXml) => {
+					//	Remove any photos without 'displayed': 'true'
+					parsedXml.document.gallery[0].photo = parsedXml.document.gallery[0].photo.filter(photo => {
+						return photo.$.displayed === "true";
+					});
+					console.log(JSON.stringify(parsedXml.document.gallery[0].photo) + '\n');
 					if(err) {
 						reject(Error(err));
 					} else {

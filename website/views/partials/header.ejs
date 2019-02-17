@@ -12,6 +12,11 @@
 	<script src="https://unpkg.com/simplebar@latest/dist/simplebar.js"></script>
 	<link href="https://fonts.googleapis.com/css?family=Rubik|Yrsa" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="css/lkb.css">
+
+	<!-- Main site JS -->	
+	<script type="text/javascript" src="js/lkb.js"></script>
+	<!------------------------------------>
+
 </head>
 <body>
 
@@ -19,17 +24,14 @@
 <script type="text/javascript">
 
 	<% if(lkb) { %>
-		const lkb = <%- locals.lkb %>;
+		lkb.map = <%- locals.lkb %>;
 		console.log(lkb);
 	<% } else { %>
-		const lkb = undefined;
+		lkb.map = undefined;
 	<% } %>
 
 </script>
 <!------------------------------------>
 
-<!-- Main site JS -->	
-<script type="text/javascript" src="js/lkb.js"></script>
-<!------------------------------------>
 
 <div class="container">
