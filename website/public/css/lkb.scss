@@ -7,7 +7,7 @@ body {
 	margin: 0;
 	height: 100vh;
 	width: 100vw;
-	background: rgba(255,150,150,0.2);
+	// background: rgba(255,150,150,0.2);
 	color: $fontColor;
 }
 
@@ -99,7 +99,7 @@ nav {
 //	Responsive sizing
 @media (min-width: 1366px) {		//	Full size
 	body { 
-		background: rgba(255,255,255,1); 
+		// background: rgba(255,255,255,1); 
 	}
 	.container { 
 		padding: 5vh 0 0 0; 
@@ -107,6 +107,7 @@ nav {
 	}
 	nav {
 		margin-bottom: 5vh;
+		// height: 90vh !important;
 		flex-basis: 15%;
 	}
 	.thumbDiv { 

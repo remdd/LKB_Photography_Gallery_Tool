@@ -27,6 +27,7 @@
 		lkb.map = <%- locals.lkb %>;
 		console.log(lkb);
 	<% } else { %>
+		console.log("Error! No lkb object received from server...");
 		lkb.map = undefined;
 	<% } %>
 

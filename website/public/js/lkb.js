@@ -1,18 +1,22 @@
 //	ADD GOOGLE ANALYTICS ******VIRTUAL PAGEVIEWS******
 
+//	Perfect-scrollbar
+var ps;
+
+//	Main object
 const lkb = {
-	//	Track current client view state
+	//	Record current client view state
 	state: {
 		view: 'gallery',
 		gal: undefined,
 		img: undefined,
+		imgNav: undefined,
 	},
 	//	Map property is populated with site map object from server
 	map: {
 		galleries: {},
 		nav: {},
 	},
-
 
 	setState(newState) {
 		console.log("...setting state...");
@@ -33,6 +37,7 @@ const lkb = {
 					break;
 				case 'image':
 					console.log("...setting state to 'image'...");
+					this.showImg(newState);
 					break;
 				case 'category':
 					console.log("...setting state to 'category'...");
@@ -46,11 +51,38 @@ const lkb = {
 				default:
 					console.log("Invalid state!");
 					break;
-			}
+			};
 		}
 	},
 
+	showGridImgNav() {
+		console.log("...showing grid imgNav...");
+		if(!$('.gridNav').is(':visible')) {
+			$('.fullNav').fadeOut('fast', () => {
+				this.updateImgNavNumbers();
+				$('.fullNav').fadeIn('fast');
+			});
+		}
+	},
+
+	showZoomImgNav() {
+		console.log("...showing zoom imgNav...");
+		if(!$('.zoomNav').is(':visible')) {
+			$('.fullNav').fadeOut('fast', () => {
+				this.updateImgNavNumbers();
+				$('.fullNav').fadeIn('fast');
+			});
+		}
+	},
+
+	updateImgNavNumbers() {
+		console.log("...updating image nav numbers...");
+		$('.no-current').text(this.state.img + 1);
+		$('.no-total').text(this.map.galleries[this.state.gal].photo.length + 1);
+	},
+
 	setUpPackery() {
+		console.log("...setting up packery...");
 		$thumbsPackery = $('#thumbs').packery({
 			itemSelector: '.thumb',
 			columnWidth: '.thumbSizer',
@@ -81,14 +113,39 @@ const lkb = {
 		});
 		$('.thumb').click(e => {
 			let num = parseInt($(e.target).parent().attr('data-imgNo'));
-			viewPhoto(num);
+			this.setState(this.createState('image', null, num));
 		});
 		$('#thumbs').imagesLoaded(() => {
 			console.log("...images loaded...");
 			this.setUpPackery();
 			this.showThumbs();
 		});
-		// showImgNav();
+	},
+
+	showImg(newState) {
+		console.log("...showing image...");
+		$('#mainDiv').fadeOut('fast', () => {
+			let photo = this.map.galleries[this.state.gal].photo[this.state.img];
+			console.log(photo);
+			$('.mainPane').hide();
+			$('#fullImg').show();
+			$('#fullImg img').attr('src', photo.path);
+			$('#fullImg').imagesLoaded(() => {
+				$('#mainDiv').fadeIn('fast');
+				this.showZoomImgNav();
+				this.refreshScrollbar();
+			});
+		});
+	},
+
+	createState(view, gal, img, imgNav) {
+		console.log("...creating state...");
+		return {
+			'view': view ? view : this.state.view,
+			'gal': gal ? gal : this.state.gal,
+			'img': img ? img : this.state.img,
+			'imgNav': imgNav ? imgNav : this.state.imgNav,
+		}
 	},
 
 	showThumbs() {
@@ -96,9 +153,9 @@ const lkb = {
 		$('.thumb').css({
 			'animation-play-state': 'running'
 		});
-		// showImgNav();
 		$('.notShown').hide();
 		$('.notShown').removeClass('notShown');
+		this.showGridImgNav();
 	},
 
 	preloadImages(galleryName) {
@@ -110,18 +167,29 @@ const lkb = {
 		});
 		this.map.galleries[galleryName].loaded = true;
 	},
+
+	refreshScrollbar() {
+		console.log("...refreshing scrollbar...");
+		$('.thumbDiv').get(0).scrollTop = 0;
+		ps.update();
+	},
 }
 
-//	Perfect-scrollbar
-var ps;
+
+
+
+
+
+
+
+
+
+
 
 //	Main function
 $(() => {
 
-	lkb.setState({
-		view: 'home',
-		gal: 'home',
-	});
+	lkb.setState(lkb.createState('home', 'home', null, 'zoom'));
 
 	//	Perfect-scrollbar
 	const thumbDiv = document.getElementsByClassName('thumbDiv')[0];

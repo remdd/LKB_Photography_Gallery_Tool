@@ -181,9 +181,9 @@ function loadCategoryXml(categoryName, callback) {
 ///////////////////////////////////
 
 function compare(a,b) {
-  if (a.$.position < b.$.position)
+  if (parseInt(a.$.position) < parseInt(b.$.position))
     return -1;
-  if (a.$.position > b.$.position)
+  if (parseInt(a.$.position) > parseInt(b.$.position))
     return 1;
   return 0;
 }
