@@ -56,20 +56,20 @@ nav .contactIcons {
 nav .contactIcons i {
   margin-right: 4px;
 }
-nav .imgNav {
+nav .navWidget {
   position: absolute;
   bottom: 0;
   right: 0;
   text-transform: uppercase;
   font-size: 0.8em;
 }
-nav .imgNav i {
+nav .navWidget i {
   margin-right: 4px;
 }
-nav .imgNav i.fa-angle-right {
+nav .navWidget i.fa-angle-right {
   margin-left: 4px;
 }
-nav .imgNav i.toggleGrid {
+nav .navWidget i.toggleGrid {
   margin-left: 4px;
 }
 

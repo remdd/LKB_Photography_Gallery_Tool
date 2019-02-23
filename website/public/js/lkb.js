@@ -10,7 +10,7 @@ const lkb = {
 		view: 'gallery',
 		gal: undefined,
 		img: undefined,
-		imgNav: undefined,
+		$packery: undefined,
 	},
 	//	Map property is populated with site map object from server
 	map: {
@@ -19,82 +19,28 @@ const lkb = {
 	},
 
 	setState(newState) {
-		console.log("...setting state...");
+		console.log("...setting new state:");
+		if(newState.view === 'home') {
+			newState.view = 'thumbs';
+			newState.gal = 'home';
+		}
 		console.log(newState);
 		if(newState.gal && !this.map.galleries[newState.gal].loaded) {
 			this.preloadImages(newState.gal);
 		}
 		if(this.state !== newState) {
 			this.state = newState;
-			switch(this.state.view) {
-				case 'home':
-					console.log("...setting state to 'home'...");
-					this.addThumbs();
-					break;
-				case 'thumbs':
-					console.log("...setting state to 'thumbs'...");
-					this.addThumbs();
-					break;
-				case 'image':
-					console.log("...setting state to 'image'...");
-					this.showImg(newState);
-					break;
-				case 'category':
-					console.log("...setting state to 'category'...");
-					break;
-				case 'contact':
-					console.log("...setting state to 'contact'...");
-					break;
-				case 'about':
-					console.log("...setting state to 'about'...");
-					break;
-				default:
-					console.log("Invalid state!");
-					break;
-			};
+			console.log(this.state);
+			this.updateNavWidget();
+			this.updateMainDiv();
 		}
-	},
-
-	showGridImgNav() {
-		console.log("...showing grid imgNav...");
-		if(!$('.gridNav').is(':visible')) {
-			$('.fullNav').fadeOut('fast', () => {
-				this.updateImgNavNumbers();
-				$('.fullNav').fadeIn('fast');
-			});
-		}
-	},
-
-	showZoomImgNav() {
-		console.log("...showing zoom imgNav...");
-		if(!$('.zoomNav').is(':visible')) {
-			$('.fullNav').fadeOut('fast', () => {
-				this.updateImgNavNumbers();
-				$('.fullNav').fadeIn('fast');
-			});
-		}
-	},
-
-	updateImgNavNumbers() {
-		console.log("...updating image nav numbers...");
-		$('.no-current').text(this.state.img + 1);
-		$('.no-total').text(this.map.galleries[this.state.gal].photo.length + 1);
-	},
-
-	setUpPackery() {
-		console.log("...setting up packery...");
-		$thumbsPackery = $('#thumbs').packery({
-			itemSelector: '.thumb',
-			columnWidth: '.thumbSizer',
-			percentPosition: true,
-			gutter: '.thumbGutter'
-		});
 	},
 
 	addThumbs() {
 		console.log("...adding thumbs...");
+		$('#thumbs li').remove();
 		let gal = this.map.galleries[this.state.gal];
-		console.log(gal);
+		$('#thumbs').attr('data-gal', this.state.gal);
 		$('.thumbSizer').addClass('col' + gal.$.columns);
 		gal.photo.forEach((photo, index) => {
 			if(photo.$.displayed === 'true') {
@@ -117,45 +63,100 @@ const lkb = {
 		});
 		$('#thumbs').imagesLoaded(() => {
 			console.log("...images loaded...");
-			this.setUpPackery();
 			this.showThumbs();
 		});
 	},
 
-	showImg(newState) {
-		console.log("...showing image...");
-		$('#mainDiv').fadeOut('fast', () => {
-			let photo = this.map.galleries[this.state.gal].photo[this.state.img];
-			console.log(photo);
-			$('.mainPane').hide();
-			$('#fullImg').show();
-			$('#fullImg img').attr('src', photo.path);
-			$('#fullImg').imagesLoaded(() => {
-				$('#mainDiv').fadeIn('fast');
-				this.showZoomImgNav();
-				this.refreshScrollbar();
-			});
-		});
-	},
-
-	createState(view, gal, img, imgNav) {
-		console.log("...creating state...");
-		return {
-			'view': view ? view : this.state.view,
-			'gal': gal ? gal : this.state.gal,
-			'img': img ? img : this.state.img,
-			'imgNav': imgNav ? imgNav : this.state.imgNav,
+	setUpPackery() {
+		console.log("...setting up packery...");
+		if($('#thumbs').packery()) {
+			console.log("...destroying packery...");
+			$('#thumbs').packery('destroy');
 		}
+		$('#thumbs').packery({
+			itemSelector: '.thumb',
+			columnWidth: '.thumbSizer',
+			percentPosition: true,
+			gutter: '.thumbGutter'
+		});
 	},
 
 	showThumbs() {
 		console.log("...showing thumbs...");
+
+		$('#mainDiv').fadeIn('fast');
+		$('#thumbs').show();
+		this.setUpPackery();
+
 		$('.thumb').css({
 			'animation-play-state': 'running'
 		});
-		$('.notShown').hide();
-		$('.notShown').removeClass('notShown');
-		this.showGridImgNav();
+	},
+
+	updateMainDiv() {
+		console.log("...updating main div...");
+		$('#mainDiv').fadeOut('fast', () => {
+			$('.mainPane').hide();
+			if(this.state.view === 'thumbs' || this.state.view === 'home') {
+				this.addThumbs();
+			} else if(this.state.view === 'image') {
+				this.showImg();
+			}
+		});
+	},
+
+	showImg() {
+		console.log("...showing image...");
+
+		let photo = this.map.galleries[this.state.gal].photo[this.state.img];
+		console.log(photo);
+		$('#fullImg').show();
+		$('#fullImg img').attr('src', photo.path);
+		$('#fullImg').imagesLoaded(() => {
+			$('#mainDiv').fadeIn('fast');
+			// this.refreshScrollbar();
+		});
+	},
+
+	nextImg() {
+		console.log("...moving to next image:");
+		let nextImg = this.state.img + 1 >= this.map.galleries[this.state.gal].photo.length ? 0 : this.state.img + 1;
+		this.setState(this.createState(null, null, nextImg));
+	},
+
+	prevImg() {
+		console.log("...moving to prev image:");
+		let prevImg = this.state.img - 1 < 0 ? this.map.galleries[this.state.gal].photo.length - 1 : this.state.img - 1;
+		this.setState(this.createState(null, null, prevImg));
+	},
+
+	createState(view, gal, img) {
+		// console.log("...creating state...");
+		return {
+			'view': view ? view : this.state.view,
+			'gal': gal ? gal : this.state.gal,
+			'img': img ? img : 0,
+		}
+	},
+
+	updateNavWidget() {
+		$('.navWidget').fadeOut('fast', () => {
+			$('.navWidget').removeClass('notShown');
+			$('.no-total').text(this.map.galleries[this.state.gal].photo.length);
+			$('.no-current').text(this.state.img + 1);
+			if(this.state.view === 'home' || this.state.view === 'thumbs') {
+				$('.fullNav').hide();
+				$('.gridNav').show();
+			} else if(this.state.view === 'image') {
+				$('.fullNav').show();
+				$('.gridNav').hide();
+			} else {
+				//	Contact, About etc
+				$('.fullNav').hide();
+				$('.gridNav').hide();
+			}
+			$('.navWidget').fadeIn('fast');
+		});
 	},
 
 	preloadImages(galleryName) {
@@ -197,22 +198,17 @@ $(() => {
 
 	//	Listeners
 	$('.toggleGrid').click(() => {
-		lkb.state.view = 'photo';
-		lkb.state.img.current = 0;
-		// updateState(true);
+		lkb.setState(lkb.createState('image'), null, 0);
 	});
 	$('.toggleFull').click(() => {
-		lkb.state.view = 'grid';
-		// updateState(true);
+		lkb.setState(lkb.createState('thumbs'));
 	});
 	$('.prevBtn, .fullNav.left').click(() => {
-		// showPrevImg();
+		lkb.prevImg();
 	});
 	$('.nextBtn, .fullNav.right').click(() => {
-		// showNextImg();
+		lkb.nextImg();
 	});
-
-	// showThumbnails();
 });
 
 
