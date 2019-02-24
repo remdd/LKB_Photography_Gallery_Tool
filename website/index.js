@@ -199,11 +199,22 @@ function checkIfFolder(target) {
 
 app.get('/', function(req, res) {
 	console.log("...GET request on /...");
+	if(req.query) {
+		lkb = JSON.parse(lkb);
+		lkb.query = {};
+		if(req.query.gal) {
+			lkb.query.view = 'thumbs';
+			lkb.query.gal = req.query.gal;
+		}
+		if(req.query.img) {
+			lkb.query.view = 'image';
+			lkb.query.imgName = req.query.img;
+		}
+		lkb = JSON.stringify(lkb);
+	}
 	//	Create lkb object containing map of all site content to be passed to client 
 	res.render('index', {lkb: lkb});
 });
-
-
 
 //	Start server
 function startServer() {

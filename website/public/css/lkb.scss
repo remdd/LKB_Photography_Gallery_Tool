@@ -2,11 +2,12 @@ $maxContainerWidth: 1366px;
 $fontColor: #555;
 
 body {
-	font-family: 'Rubik', sans-serif;
+	font-family: 'Montserrat', sans-serif;
 	padding: 0;
 	margin: 0;
 	height: 100vh;
 	width: 100vw;
+	letter-spacing: -0.03em;
 	// background: rgba(255,150,150,0.2);
 	color: $fontColor;
 }

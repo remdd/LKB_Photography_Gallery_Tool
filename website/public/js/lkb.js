@@ -3,12 +3,7 @@
 //	Main object
 const lkb = {
 	//	Record current client view state
-	state: {
-		view: 'gallery',
-		gal: undefined,
-		img: undefined,
-		$packery: undefined,
-	},
+	state: {},
 	//	Map property is populated with site map object from server
 	map: {
 		galleries: {},
@@ -32,6 +27,7 @@ const lkb = {
 			console.log(this.state);
 			this.updateNavWidget(fadeNavWidget);
 			this.updateMainDiv();
+			this.pushState();
 		}
 	},
 
@@ -51,7 +47,7 @@ const lkb = {
 					'<li class="thumb hidden col' + parseInt(gal.$.columns) + 
 					'" data-imgNo="' + index + 
 					'" data-imgName="' + photo.name + '">' +
-					'<img src="' + photo.thumbPath + '"/></li>'
+					'<img src="/' + photo.thumbPath + '"/></li>'
 				let animDelay = (index * 60) + 'ms';
 				$('#thumbs').append(thumb);
 				$('.thumb').last().css({
@@ -115,7 +111,7 @@ const lkb = {
 		let photo = this.map.galleries[this.state.gal].photo[this.state.img];
 		console.log(photo);
 		$('#fullImg').show();
-		$('#fullImg img').attr('src', photo.path);
+		$('#fullImg img').attr('src', '/' + photo.path);
 		$('#fullImg').imagesLoaded(() => {
 			$('#mainDiv').fadeIn('fast');
 			// this.refreshScrollbar();
@@ -190,6 +186,32 @@ const lkb = {
 			});
 		});
 	},
+
+	pushState() {
+		let url = undefined;
+		if(this.state.view === 'home' || this.state.view === 'thumbs') {
+			url = '/?gal=' + this.state.gal;
+		} else if(this.state.view === 'image') {
+			url = '/?gal=' + this.state.gal + '&img=' + this.map.galleries[this.state.gal].photo[this.state.img].name;
+		} else {
+			url = this.state.view;
+		}
+		history.pushState(this.state, null, url);
+	},
+
+	popState(event) {
+		console.log(event);
+	},
+
+	findImgIndexByName(galName, imgName) {
+		for(let i=0; i < this.map.galleries[galName].photo.length; i++) {
+			if(this.map.galleries[galName].photo[i].name === imgName) {
+				return i;
+			}
+		}
+		return -1;
+	},
+
 }
 
 
@@ -206,7 +228,18 @@ const lkb = {
 //	Main function
 $(() => {
 
-	lkb.setState(lkb.createState('home', 'home', null, 'zoom'));
+	console.log(lkb);
+	if(lkb.map.query) {
+		let query = lkb.map.query;
+		if(query.imgName) {
+			console.log(query.imgName);
+			let imgNo = lkb.findImgIndexByName(query.gal, query.imgName);
+			query.img = imgNo;
+		};
+		lkb.setState(lkb.createState(query.view, query.gal, query.img))
+	} else {
+		lkb.setState(lkb.createState('home', 'home', null));
+	}
 	lkb.setUpMenuLinks();
 
 	//	Listeners
@@ -222,6 +255,10 @@ $(() => {
 	$('.nextBtn, .fullNav.right').click(() => {
 		lkb.nextImg();
 	});
+
+	window.onpopstate = event => {
+		lkb.popState(event);
+	}
 });
 
 
