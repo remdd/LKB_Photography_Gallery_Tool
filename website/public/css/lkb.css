@@ -42,7 +42,8 @@ nav ul li {
   list-style-type: none;
   margin-top: 5px;
 }
-nav a {
+nav .menuLink {
+  cursor: pointer;
   color: #555;
   font-size: 0.8em;
   text-transform: uppercase;
@@ -64,6 +65,7 @@ nav .navWidget {
   font-size: 0.8em;
 }
 nav .navWidget i {
+  cursor: pointer;
   margin-right: 4px;
 }
 nav .navWidget i.fa-angle-right {
@@ -73,9 +75,11 @@ nav .navWidget i.toggleGrid {
   margin-left: 4px;
 }
 
-.thumbDiv {
+#mainDiv {
   flex-basis: 70%;
   position: relative;
+  height: 95vh;
+  margin-bottom: 5vh;
   padding: 0 16px;
 }
 
@@ -94,8 +98,8 @@ nav .navWidget i.toggleGrid {
     flex-basis: 15%;
   }
 
-  .thumbDiv {
-    padding-bottom: 5vh;
+  #mainPane {
+    height: 90vh;
     flex-basis: 70%;
   }
 
@@ -142,9 +146,13 @@ nav .navWidget i.toggleGrid {
     flex-direction: column;
   }
 }
-.mainPane {
+.mainDivContent {
   margin: 0;
   padding: 0;
+}
+
+#thumbs {
+  margin-bottom: 5vh;
 }
 
 #covers {
