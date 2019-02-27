@@ -199,15 +199,15 @@ function checkIfFolder(target) {
 
 app.get('/', function(req, res) {
 	console.log("...GET request on /...");
-	if(req.query) {
+	if(req.query.view) {
 		lkb = JSON.parse(lkb);
-		lkb.query = {};
+		lkb.query = {
+			view: req.query.view
+		};
 		if(req.query.gal) {
-			lkb.query.view = 'thumbs';
 			lkb.query.gal = req.query.gal;
 		}
 		if(req.query.img) {
-			lkb.query.view = 'image';
 			lkb.query.imgName = req.query.img;
 		}
 		lkb = JSON.stringify(lkb);

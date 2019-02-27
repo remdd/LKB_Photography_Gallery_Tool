@@ -10,24 +10,21 @@ const lkb = {
 		nav: {},
 	},
 
-	setState(newState) {
+	setState(newState, replace) {
 		console.log("...setting new state:");
 		if(newState.view === 'home') {
 			newState.view = 'thumbs';
 			newState.gal = 'home';
 		}
-		console.log(newState);
 		if(newState.gal && !this.map.galleries[newState.gal].loaded) {
 			this.preloadImages(newState.gal);
 		}
 		if(this.state !== newState) {
 			let fadeNavWidget = this.state.view === 'image' && newState.view === 'image' ? false : true;
-			console.log(fadeNavWidget);
 			this.state = newState;
-			console.log(this.state);
 			this.updateNavWidget(fadeNavWidget);
 			this.updateMainDiv();
-			this.pushState();
+			this.saveState(replace);
 		}
 	},
 
@@ -48,7 +45,7 @@ const lkb = {
 					'" data-imgNo="' + index + 
 					'" data-imgName="' + photo.name + '">' +
 					'<img src="/' + photo.thumbPath + '"/></li>'
-				let animDelay = (index * 60) + 'ms';
+				let animDelay = (index * 30) + 'ms';
 				$('#thumbs').append(thumb);
 				$('.thumb').last().css({
 					'animation-delay': animDelay,
@@ -82,7 +79,6 @@ const lkb = {
 
 	showThumbs() {
 		console.log("...showing thumbs...");
-
 		$('#mainDiv').fadeIn('fast');
 		$('#thumbs').show();
 		this.setUpPackery();
@@ -107,9 +103,7 @@ const lkb = {
 
 	showImg() {
 		console.log("...showing image...");
-
 		let photo = this.map.galleries[this.state.gal].photo[this.state.img];
-		console.log(photo);
 		$('#fullImg').show();
 		$('#fullImg img').attr('src', '/' + photo.path);
 		$('#fullImg').imagesLoaded(() => {
@@ -187,20 +181,33 @@ const lkb = {
 		});
 	},
 
-	pushState() {
-		let url = undefined;
-		if(this.state.view === 'home' || this.state.view === 'thumbs') {
-			url = '/?gal=' + this.state.gal;
-		} else if(this.state.view === 'image') {
-			url = '/?gal=' + this.state.gal + '&img=' + this.map.galleries[this.state.gal].photo[this.state.img].name;
-		} else {
-			url = this.state.view;
+	saveState(replace) {
+		console.log("...saving state...");
+		if(!this.popped) {
+			console.log("...not popped...");
+			let url = undefined;
+			if(this.state.view === 'home' || this.state.view === 'thumbs') {
+				url = '/?view=' + this.state.view  + '&gal=' + this.state.gal;
+			} else if(this.state.view === 'image') {
+				url = '/?view=' + this.state.view  + '&gal=' + this.state.gal + '&img=' + this.map.galleries[this.state.gal].photo[this.state.img].name;
+			} else {
+				url = this.state.view;
+			}
+			if(replace) {
+				history.replaceState(this.state, null, url);
+			} else {
+				history.pushState(this.state, null, url);
+			}
 		}
-		history.pushState(this.state, null, url);
+		this.popped = false;
 	},
 
 	popState(event) {
-		console.log(event);
+		if(event.state) {
+			console.log("State popped!");
+			this.popped = true;
+			this.setState(event.state);
+		}
 	},
 
 	findImgIndexByName(galName, imgName) {
@@ -227,19 +234,31 @@ const lkb = {
 
 //	Main function
 $(() => {
-
 	console.log(lkb);
-	if(lkb.map.query) {
-		let query = lkb.map.query;
-		if(query.imgName) {
-			console.log(query.imgName);
-			let imgNo = lkb.findImgIndexByName(query.gal, query.imgName);
-			query.img = imgNo;
-		};
-		lkb.setState(lkb.createState(query.view, query.gal, query.img))
-	} else {
-		lkb.setState(lkb.createState('home', 'home', null));
+
+	// if(lkb.map.query) {
+	// 	let query = lkb.map.query;
+	// 	console.log(query);
+	// 	if(query.imgName) {
+	// 		console.log(query.imgName);
+	// 		let imgNo = lkb.findImgIndexByName(query.gal, query.imgName);
+	// 		query.img = imgNo;
+	// 	};
+	// 	lkb.setState(lkb.createState(query.view, query.gal, query.img))
+	// } else {
+	// 	lkb.setState(lkb.createState('home', 'home', null));
+	// }
+
+	let query = {
+		view: lkb.map.query && lkb.map.query.view ? lkb.map.query.view : 'home',
+		gal: lkb.map.query && lkb.map.query.gal ? lkb.map.query.gal : 'home',
+		img: lkb.map.query && lkb.map.query.imgName ? lkb.findImgIndexByName(query.gal, query.imgName) : null,
 	}
+	lkb.setState(lkb.createState(query.view, query.gal, query.img), true);
+
+
+
+
 	lkb.setUpMenuLinks();
 
 	//	Listeners
@@ -257,6 +276,7 @@ $(() => {
 	});
 
 	window.onpopstate = event => {
+		console.log(event.state);
 		lkb.popState(event);
 	}
 });

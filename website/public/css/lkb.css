@@ -168,7 +168,7 @@ nav .navWidget i.toggleGrid {
   float: left;
   font-size: 0;
   position: relative;
-  animation: reveal 1s forwards;
+  animation: reveal 0.5s forwards;
   opacity: 0;
   cursor: pointer;
 }
