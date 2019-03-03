@@ -156,8 +156,25 @@ nav .navWidget i.toggleGrid {
   margin-bottom: 5vh;
 }
 
-#covers {
-  background: rgba(80, 255, 80, 0.3);
+#covers .catThumb {
+  display: inline-block;
+  user-select: none;
+  box-sizing: border-box;
+  margin: 0;
+  float: left;
+  font-size: 0;
+  position: relative;
+  animation: reveal 0.5s forwards;
+  opacity: 0;
+  cursor: pointer;
+}
+#covers .catThumb div {
+  background-size: cover;
+  background-position: center;
+  padding-top: 75%;
+}
+#covers .catThumb span {
+  font-size: 16px;
 }
 
 .thumb {
@@ -188,13 +205,16 @@ nav .navWidget i.toggleGrid {
   width: 2%;
 }
 
-.thumbSizer.col3, .thumb.col3 {
+.thumbSizer.col2, .thumb.col2, .catThumb.col2 {
+  width: 49%;
+}
+.thumbSizer.col3, .thumb.col3, .catThumb.col3 {
   width: 32%;
 }
-.thumbSizer.col4, .thumb.col4 {
+.thumbSizer.col4, .thumb.col4, .catThumb.col4 {
   width: 23.5%;
 }
-.thumbSizer.col5, .thumb.col5 {
+.thumbSizer.col5, .thumb.col5, .catThumb.col5 {
   width: 18.4%;
 }
 

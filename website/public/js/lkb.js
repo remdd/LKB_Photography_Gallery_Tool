@@ -2,71 +2,20 @@
 
 //	Main object
 const lkb = {
-	//	Record current client view state
+	//	Record active view state
 	state: {},
-	//	Map property is populated with site map object from server
+	//	Map property is populated with site map object from server on first load
 	map: {
 		galleries: {},
 		nav: {},
 	},
-
-	setState(newState, replace) {
-		console.log("...setting new state:");
-		if(newState.view === 'home') {
-			newState.view = 'thumbs';
-			newState.gal = 'home';
-		}
-		if(newState.gal && !this.map.galleries[newState.gal].loaded) {
-			this.preloadImages(newState.gal);
-		}
-		if(this.state !== newState) {
-			let fadeNavWidget = this.state.view === 'image' && newState.view === 'image' ? false : true;
-			this.state = newState;
-			this.updateNavWidget(fadeNavWidget);
-			this.updateMainDiv();
-			this.saveState(replace);
-		}
+	config: {
+		animDelay: 30,
 	},
 
-	addThumbs() {
-		console.log("...removing thumbs...");
-		$('#thumbs li').remove();
-		console.log("...adding thumbs...");
-		let gal = this.map.galleries[this.state.gal];
-		$('#thumbs').attr('data-gal', this.state.gal);
-		$('.thumbSizer').removeClass((index, className) => {
-			return (className.match(/(^|\s)col\S+/g) || []).join(' ');
-		});
-		$('.thumbSizer').addClass('col' + gal.$.columns);
-		gal.photo.forEach((photo, index) => {
-			if(photo.$.displayed === 'true') {
-				let thumb = 
-					'<li class="thumb hidden col' + parseInt(gal.$.columns) + 
-					'" data-imgNo="' + index + 
-					'" data-imgName="' + photo.name + '">' +
-					'<img src="/' + photo.thumbPath + '"/></li>'
-				let animDelay = (index * 30) + 'ms';
-				$('#thumbs').append(thumb);
-				$('.thumb').last().css({
-					'animation-delay': animDelay,
-					'animation-play-state': 'paused'
-				});
-			}
-		});
-		$('.thumb').click(e => {
-			let num = parseInt($(e.target).parent().attr('data-imgNo'));
-			this.setState(this.createState('image', null, num));
-		});
-		$('#thumbs').imagesLoaded(() => {
-			console.log("...images loaded...");
-			this.showThumbs();
-		});
-	},
-
-	setUpPackery() {
-		console.log("...setting up packery...");
+	setUpThumbPackery() {
+		console.log("...setting up thumb packery...");
 		if($('#thumbs').packery()) {
-			console.log("...destroying packery...");
 			$('#thumbs').packery('destroy');
 		}
 		$('#thumbs').packery({
@@ -77,11 +26,24 @@ const lkb = {
 		});
 	},
 
+	setUpCatThumbPackery() {
+		console.log("...setting up cat thumb packery...");
+		if($('#covers').packery()) {
+			$('#covers').packery('destroy');
+		}
+		$('#covers').packery({
+			itemSelector: '.catThumb',
+			columnWidth: '.thumbSizer',
+			percentPosition: true,
+			gutter: '.thumbGutter'
+		});
+	},
+
 	showThumbs() {
 		console.log("...showing thumbs...");
 		$('#mainDiv').fadeIn('fast');
 		$('#thumbs').show();
-		this.setUpPackery();
+		this.setUpThumbPackery();
 
 		$('.thumb').css({
 			'animation-play-state': 'running'
@@ -97,6 +59,8 @@ const lkb = {
 				this.addThumbs();
 			} else if(this.state.view === 'image') {
 				this.showImg();
+			} else if(this.state.view === 'category') {
+				this.addCatThumbs();
 			}
 		});
 	},
@@ -115,45 +79,43 @@ const lkb = {
 	nextImg() {
 		console.log("...moving to next image:");
 		let nextImg = this.state.img + 1 >= this.map.galleries[this.state.gal].photo.length ? 0 : this.state.img + 1;
-		this.setState(this.createState(null, null, nextImg));
+		this.setState({ view: 'image', img: nextImg });
 	},
 
 	prevImg() {
 		console.log("...moving to prev image:");
 		let prevImg = this.state.img - 1 < 0 ? this.map.galleries[this.state.gal].photo.length - 1 : this.state.img - 1;
-		this.setState(this.createState(null, null, prevImg));
-	},
-
-	createState(view, gal, img) {
-		// console.log("...creating state...");
-		return {
-			'view': view ? view : this.state.view,
-			'gal': gal ? gal : this.state.gal,
-			'img': img ? img : 0,
-		}
+		this.setState({ view: 'image', img: prevImg });
 	},
 
 	updateNavWidget(fadeNavWidget) {
-		if(fadeNavWidget) {
-			$('.navWidget').fadeOut('fast', () => {
-				$('.navWidget').removeClass('notShown');
-				$('.no-total').text(this.map.galleries[this.state.gal].photo.length);
+		if(this.state.view === 'image' || this.state.view === 'thumbs') {
+			if(fadeNavWidget) {
+				$('.navWidget').fadeOut('fast', () => {
+					$('.navWidget').removeClass('notShown');
+					$('.no-total').text(this.map.galleries[this.state.gal].photo.length);
+					$('.no-current').text(this.state.img + 1);
+					if(this.state.view === 'home' || this.state.view === 'thumbs') {
+						$('.fullNav').hide();
+						$('.gridNav').show();
+					} else if(this.state.view === 'image') {
+						$('.fullNav').show();
+						$('.gridNav').hide();
+					} else {
+						//	Contact, About etc
+						$('.fullNav').hide();
+						$('.gridNav').hide();
+					}
+					$('.navWidget').fadeIn('fast');
+				});
+			} else {
 				$('.no-current').text(this.state.img + 1);
-				if(this.state.view === 'home' || this.state.view === 'thumbs') {
-					$('.fullNav').hide();
-					$('.gridNav').show();
-				} else if(this.state.view === 'image') {
-					$('.fullNav').show();
-					$('.gridNav').hide();
-				} else {
-					//	Contact, About etc
-					$('.fullNav').hide();
-					$('.gridNav').hide();
+				if(!$('.navWidget').is(':visible')) {
+					$('.navWidget').fadeIn('fast');
 				}
-				$('.navWidget').fadeIn('fast');
-			});
+			}
 		} else {
-			$('.no-current').text(this.state.img + 1);
+			$('.navWidget').fadeOut('fast');
 		}
 	},
 
@@ -174,22 +136,133 @@ const lkb = {
 
 	setUpMenuLinks() {
 		console.log("...setting up menu links...");
+		$('nav.pane ul').empty();
+		lkb.map.nav.link.map(link => {
+			let $navLi = $('<li><span class="menuLink">' + link.$.linkText + '</span></li>');
+			$navLi.find('span').attr('data-type', link.$.type);
+			if(link.$.type === 'gallery') {
+				$navLi.find('span').attr('data-gal', link.$.gal);
+			} else if(link.$.type === 'category') {
+				$navLi.find('span').attr('data-cat', link.$.cat);
+			}
+			$('nav.pane ul').append($navLi);
+		});
+
+
 		$('.menuLink').each(function() {
 			$(this).click(function() {
-				lkb.setState(lkb.createState('thumbs', $(this).attr('data-link'), null));
+				switch($(this).attr('data-type')) {
+					case 'gallery':
+						lkb.setState({
+							view: 'thumbs',
+							gal: $(this).attr('data-gal'),
+						});
+						break;
+					case 'category':
+						lkb.setState({
+							view: 'category',
+							cat: $(this).attr('data-cat'),
+						});
+						break;
+					default:
+						lkb.setState({
+							view: $(this).attr('data-type'),
+						});
+						break;
+				}
 			});
 		});
 	},
 
+	addThumbs() {
+		console.log("...removing thumbs...");
+		$('#thumbs li').remove();
+		console.log("...adding thumbs...");
+		let gal = this.map.galleries[this.state.gal];
+		$('#thumbs').attr('data-gal', this.state.gal);
+		$('#thumbs .thumbSizer').removeClass((index, className) => {
+			return (className.match(/(^|\s)col\S+/g) || []).join(' ');
+		});
+		$('#thumbs .thumbSizer').addClass('col' + gal.$.columns);
+		gal.photo.forEach((photo, index) => {
+			if(photo.$.displayed === 'true') {
+				let thumb = 
+					'<li class="thumb hidden col' + parseInt(gal.$.columns) + 
+					'" data-imgNo="' + index + 
+					'" data-imgName="' + photo.name + '">' +
+					'<img src="/' + photo.thumbPath + '"/></li>'
+				let animDelay = (index * this.config.animDelay) + 'ms';
+				$('#thumbs').append(thumb);
+				$('.thumb').last().css({
+					'animation-delay': animDelay,
+					'animation-play-state': 'paused'
+				});
+			}
+		});
+		$('.thumb').click(e => {
+			let num = parseInt($(e.target).parent().attr('data-imgNo'));
+			this.setState({ view: 'image', img: num });
+		});
+		$('#thumbs').imagesLoaded(() => {
+			console.log("...images loaded...");
+			this.showThumbs();
+		});
+	},
+
+	addCatThumbs() {
+		console.log("...removing category thumbs...");
+		$('#covers .catThumb').remove();
+		console.log("...adding category thumbs...");
+		let cat = this.map.nav.link.find(link => link.$.cat === this.state.cat);
+		console.log(cat);
+		$('#covers .thumbSizer, #covers .catThumb').removeClass((index, className) => {
+			return (className.match(/(^|\s)col\S+/g) || []).join(' ');
+		});
+		$('#covers .thumbSizer').addClass('col' + cat.$.columns)
+		cat.gallery.forEach((gallery, index) => {
+			let $thumb = $('<li class="catThumb col' + cat.$.columns + '"><div></div><span></span></li>');
+			let coverPath = `url('/galleries/${gallery.$.gal}/${gallery.$.cover}.jpg')`; 
+			console.log(coverPath);
+			$thumb.find('div').css('background-image', coverPath);
+			$thumb.find('span').text(`${gallery.$.description}`);
+			let animDelay = (index * this.config.animDelay) + 'ms';
+			$('#covers').append($thumb);
+			$('.catThumb').last().css({
+				'animation-delay': animDelay,
+				'animation-play-state': 'paused'
+			});
+		});
+		$('.catThumb').click(e => {
+			// console.log("Cat thumb!");
+		});
+		$('#thumbs').imagesLoaded(() => {
+			// console.log("...images loaded..."); 
+			this.showCatThumbs();
+		});
+	},
+
+	showCatThumbs() {
+		// console.log("...showing category thumbs...");
+		$('#mainDiv').fadeIn('fast');
+		$('#covers').show();
+		this.setUpCatThumbPackery();
+
+		$('.catThumb').css({
+			'animation-play-state': 'running'
+		});
+	},
+
 	saveState(replace) {
-		console.log("...saving state...");
+		// console.log("...saving state...");
 		if(!this.popped) {
-			console.log("...not popped...");
+			// console.log("...not popped...");
 			let url = undefined;
 			if(this.state.view === 'home' || this.state.view === 'thumbs') {
 				url = '/?view=' + this.state.view  + '&gal=' + this.state.gal;
 			} else if(this.state.view === 'image') {
 				url = '/?view=' + this.state.view  + '&gal=' + this.state.gal + '&img=' + this.map.galleries[this.state.gal].photo[this.state.img].name;
+			} else if(this.state.view === 'category') {
+				url = '/?view=' + this.state.view  + '&cat=' + this.state.cat;
 			} else {
 				url = this.state.view;
 			}
@@ -219,54 +292,59 @@ const lkb = {
 		return -1;
 	},
 
+	setState(newState, replace) {
+		console.log("...setting new state:");
+		if(newState.view === 'home') {
+			newState.view = 'thumbs';
+			newState.gal = 'home';
+		}
+		if(newState.gal && !this.map.galleries[newState.gal].loaded) {
+			this.preloadImages(newState.gal);
+		}
+		if(this.state !== newState) {
+			console.log(this.state);
+			console.log(newState);
+			let fadeNavWidget = this.state.view === 'image' && newState.view === 'image' ? false : true;
+			Object.assign(this.state, newState);
+			// this.state = newState;
+			console.log(this.state);
+			this.updateNavWidget(fadeNavWidget);
+			this.updateMainDiv();
+			this.saveState(replace);
+		}
+	},
+
 }
 
 
 
 
-
-
-
-
-
-
-
-
-//	Main function
+//	First load
 $(() => {
 	console.log(lkb);
-
-	// if(lkb.map.query) {
-	// 	let query = lkb.map.query;
-	// 	console.log(query);
-	// 	if(query.imgName) {
-	// 		console.log(query.imgName);
-	// 		let imgNo = lkb.findImgIndexByName(query.gal, query.imgName);
-	// 		query.img = imgNo;
-	// 	};
-	// 	lkb.setState(lkb.createState(query.view, query.gal, query.img))
-	// } else {
-	// 	lkb.setState(lkb.createState('home', 'home', null));
-	// }
-
-	let query = {
-		view: lkb.map.query && lkb.map.query.view ? lkb.map.query.view : 'home',
-		gal: lkb.map.query && lkb.map.query.gal ? lkb.map.query.gal : 'home',
-		img: lkb.map.query && lkb.map.query.imgName ? lkb.findImgIndexByName(query.gal, query.imgName) : null,
-	}
-	lkb.setState(lkb.createState(query.view, query.gal, query.img), true);
-
-
-
+	console.log(lkb.map.query);
 
 	lkb.setUpMenuLinks();
 
+	//	If map received from server includes query object, view that - otherwise show homepage 
+	let query = lkb.map.query ? lkb.map.query : {
+		view: 'home',
+		gal: 'home',
+	}
+	query.img = lkb.map.query && lkb.map.query.imgName ? lkb.findImgIndexByName(lkb.map.query.gal, lkb.map.query.imgName) : null;
+	lkb.setState(query, true);
+
 	//	Listeners
 	$('.toggleGrid').click(() => {
-		lkb.setState(lkb.createState('image'), null, 0);
+		lkb.setState({
+			view: 'image',
+			img: 0,
+		});
 	});
 	$('.toggleFull').click(() => {
-		lkb.setState(lkb.createState('thumbs'));
+		lkb.setState({
+			view: 'thumbs',
+		});
 	});
 	$('.prevBtn, .fullNav.left').click(() => {
 		lkb.prevImg();

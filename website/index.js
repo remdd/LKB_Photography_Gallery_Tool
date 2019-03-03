@@ -45,7 +45,7 @@ var lkb = {
 function mapSiteContent() {
 	console.log("...mapping site content...");
 	return new Promise((resolve, reject) => {
-		console.log(`\n\nInitial: ${JSON.stringify(lkb)}\n\n`);
+		// console.log(`\n\nInitial: ${JSON.stringify(lkb)}\n\n`);
 		loadNavXml(lkb)
 		.then(() => {
 			return addGalleryObjects(lkb)
@@ -78,8 +78,9 @@ function loadNavXml(lkb) {
 					reject(Error(err));
 					} else {
 						lkb.nav = parsedNavXml;
+						lkb.nav = lkb.nav.nav;
 						console.log("\nResolving loadNavXml");
-						console.log(`${JSON.stringify(lkb)}\n`);
+						console.log(`${JSON.stringify(lkb.nav)}\n`);
 						resolve(lkb);
 					}
 				});
@@ -100,7 +101,7 @@ function addGalleryObjects(lkb) {
 					lkb.galleries[(path.basename(galleryName).toLowerCase())] = {};
 				});
 				console.log("\nResolving addGalleryObjects");
-				console.log(`${JSON.stringify(lkb)}\n`);
+				// console.log(`${JSON.stringify(lkb)}\n`);
 				resolve(lkb);
 			}
 		})
@@ -115,7 +116,6 @@ function loadGalleryContent(lkb) {
 			promises.push(loadGalleryXml(lkb, galleryName));
 		});
 		Promise.all(promises).then(() => {
-			console.log("\nResolving loadGalleryContent");
 			resolve(lkb);
 		});
 	});
@@ -133,7 +133,7 @@ function loadGalleryXml(lkb, galleryName) {
 					parsedXml.document.gallery[0].photo = parsedXml.document.gallery[0].photo.filter(photo => {
 						return photo.$.displayed === "true";
 					});
-					console.log(JSON.stringify(parsedXml.document.gallery[0].photo) + '\n');
+					// console.log(JSON.stringify(parsedXml.document.gallery[0].photo) + '\n');
 					if(err) {
 						reject(Error(err));
 					} else {
@@ -142,7 +142,7 @@ function loadGalleryXml(lkb, galleryName) {
 						//	Sort photos in 'position' order
 						parsedXml.document.gallery[0].photo.sort(compare);
 						lkb.galleries[galleryName] = parsedXml.document.gallery[0];
-						console.log(`Resolving loadGalleryXml for ${galleryName} : ${lkb.galleries[galleryName].$.displayname}`);
+						// console.log(`Resolving loadGalleryXml for ${galleryName} : ${lkb.galleries[galleryName].$.displayname}`);
 						resolve(parsedXml);
 					}
 				});
@@ -152,7 +152,7 @@ function loadGalleryXml(lkb, galleryName) {
 }
 
 function addPhotoPaths(parsedXml) {
-	console.log("...adding photo paths...");
+	// console.log("...adding photo paths...");
 	parsedXml.document.gallery[0].photo.forEach((photo, index) => {
 		photo.path = path.join(config.path.galleries, parsedXml.document.gallery[0].$.folder, photo._);
 		photo.thumbPath = path.join(config.path.galleries, parsedXml.document.gallery[0].$.folder, 'thumbs', photo._);
@@ -204,12 +204,16 @@ app.get('/', function(req, res) {
 		lkb.query = {
 			view: req.query.view
 		};
-		if(req.query.gal) {
+		console.log(req.query);
+		if(req.query.cat) {
+			lkb.query.cat = req.query.cat;
+		} else if(req.query.gal) {
 			lkb.query.gal = req.query.gal;
 		}
 		if(req.query.img) {
 			lkb.query.imgName = req.query.img;
 		}
+		console.log(`\n*****************\n${JSON.stringify(lkb.query)}`);
 		lkb = JSON.stringify(lkb);
 	}
 	//	Create lkb object containing map of all site content to be passed to client 
