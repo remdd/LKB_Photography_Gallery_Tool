@@ -14,7 +14,7 @@ const lkb = {
 	},
 
 	setUpThumbPackery() {
-		console.log("...setting up thumb packery...");
+		// console.log("...setting up thumb packery...");
 		if($('#thumbs').packery()) {
 			$('#thumbs').packery('destroy');
 		}
@@ -27,7 +27,7 @@ const lkb = {
 	},
 
 	setUpCatThumbPackery() {
-		console.log("...setting up cat thumb packery...");
+		// console.log("...setting up cat thumb packery...");
 		if($('#covers').packery()) {
 			$('#covers').packery('destroy');
 		}
@@ -40,7 +40,7 @@ const lkb = {
 	},
 
 	showThumbs() {
-		console.log("...showing thumbs...");
+		// console.log("...showing thumbs...");
 		$('#mainDiv').fadeIn('fast');
 		$('#thumbs').show();
 		this.setUpThumbPackery();
@@ -52,7 +52,7 @@ const lkb = {
 	},
 
 	updateMainDiv() {
-		console.log("...updating main div...");
+		// console.log("...updating main div...");
 		$('#mainDiv').fadeOut('fast', () => {
 			$('.mainDivContent').hide();
 			if(this.state.view === 'thumbs' || this.state.view === 'home') {
@@ -66,7 +66,7 @@ const lkb = {
 	},
 
 	showImg() {
-		console.log("...showing image...");
+		// console.log("...showing image...");
 		let photo = this.map.galleries[this.state.gal].photo[this.state.img];
 		$('#fullImg').show();
 		$('#fullImg img').attr('src', '/' + photo.path);
@@ -77,13 +77,13 @@ const lkb = {
 	},
 
 	nextImg() {
-		console.log("...moving to next image:");
+		// console.log("...moving to next image:");
 		let nextImg = this.state.img + 1 >= this.map.galleries[this.state.gal].photo.length ? 0 : this.state.img + 1;
 		this.setState({ view: 'image', img: nextImg });
 	},
 
 	prevImg() {
-		console.log("...moving to prev image:");
+		// console.log("...moving to prev image:");
 		let prevImg = this.state.img - 1 < 0 ? this.map.galleries[this.state.gal].photo.length - 1 : this.state.img - 1;
 		this.setState({ view: 'image', img: prevImg });
 	},
@@ -120,7 +120,7 @@ const lkb = {
 	},
 
 	preloadImages(galleryName) {
-		console.log(`...preloading images for ${galleryName}...`);
+		// console.log(`...preloading images for ${galleryName}...`);
 		let photos = this.map.galleries[galleryName].photo;
 		photos.forEach(photo => {
 			$('<img/>')[0].src = photo.path;
@@ -130,12 +130,12 @@ const lkb = {
 	},
 
 	refreshScrollbar() {
-		console.log("...refreshing scrollbar...");
+		// console.log("...refreshing scrollbar...");
 		$('#mainDiv').get(0).scrollTop = 0;
 	},
 
 	setUpMenuLinks() {
-		console.log("...setting up menu links...");
+		// console.log("...setting up menu links...");
 		$('nav.pane ul').empty();
 		lkb.map.nav.link.map(link => {
 			let $navLi = $('<li><span class="menuLink">' + link.$.linkText + '</span></li>');
@@ -147,7 +147,6 @@ const lkb = {
 			}
 			$('nav.pane ul').append($navLi);
 		});
-
 
 		$('.menuLink').each(function() {
 			$(this).click(function() {
@@ -175,9 +174,9 @@ const lkb = {
 	},
 
 	addThumbs() {
-		console.log("...removing thumbs...");
+		// console.log("...removing thumbs...");
 		$('#thumbs li').remove();
-		console.log("...adding thumbs...");
+		// console.log("...adding thumbs...");
 		let gal = this.map.galleries[this.state.gal];
 		$('#thumbs').attr('data-gal', this.state.gal);
 		$('#thumbs .thumbSizer').removeClass((index, className) => {
@@ -204,25 +203,23 @@ const lkb = {
 			this.setState({ view: 'image', img: num });
 		});
 		$('#thumbs').imagesLoaded(() => {
-			console.log("...images loaded...");
+			// console.log("...images loaded...");
 			this.showThumbs();
 		});
 	},
 
 	addCatThumbs() {
-		console.log("...removing category thumbs...");
+		// console.log("...removing category thumbs...");
 		$('#covers .catThumb').remove();
-		console.log("...adding category thumbs...");
+		// console.log("...adding category thumbs...");
 		let cat = this.map.nav.link.find(link => link.$.cat === this.state.cat);
-		console.log(cat);
 		$('#covers .thumbSizer, #covers .catThumb').removeClass((index, className) => {
 			return (className.match(/(^|\s)col\S+/g) || []).join(' ');
 		});
 		$('#covers .thumbSizer').addClass('col' + cat.$.columns)
 		cat.gallery.forEach((gallery, index) => {
-			let $thumb = $('<li class="catThumb col' + cat.$.columns + '"><div></div><span></span></li>');
+			let $thumb = $(`<li class="catThumb col${cat.$.columns}" data-gal="${gallery.$.gal}"><div></div><span></span></li>`);
 			let coverPath = `url('/galleries/${gallery.$.gal}/${gallery.$.cover}.jpg')`; 
-			console.log(coverPath);
 			$thumb.find('div').css('background-image', coverPath);
 			$thumb.find('span').text(`${gallery.$.description}`);
 			let animDelay = (index * this.config.animDelay) + 'ms';
@@ -233,6 +230,7 @@ const lkb = {
 			});
 		});
 		$('.catThumb').click(e => {
+			this.setState({ view: 'thumbs', gal: $(e.target).attr('data-gal')});
 			// console.log("Cat thumb!");
 		});
 		$('#thumbs').imagesLoaded(() => {
@@ -246,7 +244,6 @@ const lkb = {
 		$('#mainDiv').fadeIn('fast');
 		$('#covers').show();
 		this.setUpCatThumbPackery();
-
 		$('.catThumb').css({
 			'animation-play-state': 'running'
 		});
@@ -277,7 +274,7 @@ const lkb = {
 
 	popState(event) {
 		if(event.state) {
-			console.log("State popped!");
+			// console.log("State popped!");
 			this.popped = true;
 			this.setState(event.state);
 		}
@@ -293,7 +290,7 @@ const lkb = {
 	},
 
 	setState(newState, replace) {
-		console.log("...setting new state:");
+		// console.log("...setting new state:");
 		if(newState.view === 'home') {
 			newState.view = 'thumbs';
 			newState.gal = 'home';
@@ -302,12 +299,8 @@ const lkb = {
 			this.preloadImages(newState.gal);
 		}
 		if(this.state !== newState) {
-			console.log(this.state);
-			console.log(newState);
 			let fadeNavWidget = this.state.view === 'image' && newState.view === 'image' ? false : true;
 			Object.assign(this.state, newState);
-			// this.state = newState;
-			console.log(this.state);
 			this.updateNavWidget(fadeNavWidget);
 			this.updateMainDiv();
 			this.saveState(replace);
@@ -322,7 +315,6 @@ const lkb = {
 //	First load
 $(() => {
 	console.log(lkb);
-	console.log(lkb.map.query);
 
 	lkb.setUpMenuLinks();
 
@@ -354,7 +346,7 @@ $(() => {
 	});
 
 	window.onpopstate = event => {
-		console.log(event.state);
+		// console.log(event.state);
 		lkb.popState(event);
 	}
 });

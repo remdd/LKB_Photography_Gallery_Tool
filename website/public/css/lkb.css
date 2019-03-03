@@ -172,9 +172,11 @@ nav .navWidget i.toggleGrid {
   background-size: cover;
   background-position: center;
   padding-top: 75%;
+  pointer-events: none;
 }
 #covers .catThumb span {
   font-size: 16px;
+  pointer-events: none;
 }
 
 .thumb {
