@@ -177,7 +177,7 @@ nav {
 
 .mainDivContent {
 	margin: 0;
-	padding: 0;	
+	padding: 0;
 }
 
 #thumbs {
@@ -207,7 +207,9 @@ nav {
 			pointer-events: none;
 		}
 		span {
-			font-size: 16px;
+			display: block;
+			margin-top: 0.2rem;
+			font-size: 0.8rem;
 			pointer-events: none;
 		}
 	}
@@ -250,6 +252,9 @@ nav {
 	}
 	&.col5 {
 		width: 18.4%;
+	}
+	&.col6 {
+		width: 15%;
 	}
 }
 

@@ -3,10 +3,7 @@
 	<nav class="pane">
 		<span class="menuLink" data-type="gallery" data-gal="home"><h1>Laura Kate Bemrose<br>Photography</h1></span>
 		<ul>
-<!-- 			<li><span class="menuLink" data-link="cuba">Portraits</span></li>
-			<li><span class="menuLink" data-link="bob">Live Music</span></li>
-			<li><span class="menuLink" data-link="cuba">Behind The Scenes</span></li>
-			<li><span class="menuLink" data-link="bob">Theatre</span></li> -->
+			<!-- links from nav.xml go here -->
 		</ul>
 		<div class="contactIcons">
 			<i class="fab fa-fw fa-instagram instagramLink"></i>
@@ -28,19 +25,31 @@
 
 	<div id="mainPane" class="pane">
 		<div id="mainDiv" data-simplebar>
+
 			<ul id="thumbs" class="mainDivContent">
 				<div class="thumbSizer"></div>
 				<div class="thumbGutter"></div>
 			</ul>
+
 			<div id="fullImg" class="mainDivContent">
 				<img src="">
 				<div class="fullNav left"></div>
 				<div class="fullNav right"></div>
 			</div>
+
 			<div id="covers" class="mainDivContent">
 				<div class="thumbSizer"></div>
 				<div class="thumbGutter"></div>
 			</div>
+
+			<div id="contact" class="mainDivContent">
+				<% include ./partials/contact %>
+			</div>
+
+			<div id="about" class="mainDivContent">
+				<% include ./partials/about %>
+			</div>
+
 		</div>
 <!-- 	</div> -->
 

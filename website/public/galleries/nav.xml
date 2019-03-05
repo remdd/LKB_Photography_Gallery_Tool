@@ -3,7 +3,9 @@
 
 	<link type="category" linkText="Live Music" cat="music" columns="2">
 		<gallery gal="bob" cover="bob_6" description="Norway, 2017"></gallery>
+		<gallery gal="cuba" cover="cuba_3" description="Another, 2015-16"></gallery>
 		<gallery gal="cuba" cover="cuba_2" description="Cuba, 2015-16"></gallery>
+		<gallery gal="bob" cover="bob_4" description="And another, 2017"></gallery>
 	</link>
 
 	<link type="gallery" gal="bob" linkText="Behind the scenes"></link>

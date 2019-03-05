@@ -61,6 +61,15 @@ const lkb = {
 				this.showImg();
 			} else if(this.state.view === 'category') {
 				this.addCatThumbs();
+			} else if(this.state.view === 'about') {
+				this.showAboutPage();
+			} else if(this.state.view === 'contact') {
+				this.showContactPage();
+			} else {
+				this.setState({
+					view: 'thumbs',
+					gal: 'home',
+				});
 			}
 		});
 	},
@@ -164,6 +173,7 @@ const lkb = {
 						});
 						break;
 					default:
+						console.log(`Setting ${$(this).attr('data-type')}`);
 						lkb.setState({
 							view: $(this).attr('data-type'),
 						});
@@ -171,6 +181,18 @@ const lkb = {
 				}
 			});
 		});
+	},
+
+	showContactPage() {
+		console.log("SDFSDFSDF");
+		$('#contact').show();
+		$('#mainDiv').fadeIn('fast');
+	},
+
+	showAboutPage() {
+		console.log("sdxcvxcvbsdh");
+		$('#about').show();
+		$('#mainDiv').fadeIn('fast');
 	},
 
 	addThumbs() {
@@ -261,7 +283,7 @@ const lkb = {
 			} else if(this.state.view === 'category') {
 				url = '/?view=' + this.state.view  + '&cat=' + this.state.cat;
 			} else {
-				url = this.state.view;
+				url = '/?view=' + this.state.view;
 			}
 			if(replace) {
 				history.replaceState(this.state, null, url);
@@ -298,6 +320,7 @@ const lkb = {
 		if(newState.gal && !this.map.galleries[newState.gal].loaded) {
 			this.preloadImages(newState.gal);
 		}
+		console.log(newState);
 		if(this.state !== newState) {
 			let fadeNavWidget = this.state.view === 'image' && newState.view === 'image' ? false : true;
 			Object.assign(this.state, newState);
