@@ -152,6 +152,10 @@ nav .navWidget i.toggleGrid {
   padding: 0;
 }
 
+.simplebar-vertical {
+  height: 90vh;
+}
+
 #thumbs {
   margin-bottom: 5vh;
 }
